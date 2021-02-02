@@ -28,7 +28,10 @@
                             <img src="../assets/head.jpg" alt="">
                         </div>
                         <div class="mesBox">
-                            <div class="name">用户名</div>
+                            <div class="nameBox">
+                               <span class="name">用户名户名</span>
+                               <span class="time">2015-02 12:05</span>
+                            </div>
                             <div class="abs">A:有新的新闻</div>
                         </div>
                     </div>
@@ -250,12 +253,28 @@
                         .mesBox{
                             overflow: hidden;
                             flex: 1;
-                            .name{
-                                font-size: 14px;
-                                overflow: hidden;
-                                white-space: nowrap;
-                                text-overflow: ellipsis;
+                            .nameBox{
+                                display: flex;
+                                align-items: center;
+                                justify-content: space-between;
+                                .name{
+                                    display: block;
+                                    flex: 1;
+                                    width: 0px;
+                                    font-size: 14px;
+                                    overflow: hidden;
+                                    white-space: nowrap;
+                                    text-overflow: ellipsis;
+                                    padding-right: 5px;
+                                }
+                                .time{
+                                    display: block;
+                                    width: 85px;
+                                    text-align: right;
+                                    font-size: 12px;
+                                }
                             }
+
                             .abs{
                                 font-size: 13px;
                                 color: #999999;
