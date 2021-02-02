@@ -1,0 +1,432 @@
+<template>
+    <div class="content">
+        <div class="chatBox">
+            <div class="tool">
+                <div class="headImg">
+                    <img src="../assets/head.jpg" alt="">
+                </div>
+                <div class="mesIcon active">
+                   <i class="iconfont iconxiaoxi1"></i>
+                </div>
+                <div class="menuIcon mesIcon">
+                    <i class="iconfont iconcaidan"></i>
+                </div>
+            </div>
+            <div class="user">
+                <div class="topBox">
+                    <div class="search">
+                        <i class="iconfont iconsousuo"></i>
+                        <input class="input" type="text" placeholder="搜索">
+                        <div class="add">
+                            <i class="iconfont iconplus"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="userList">
+                    <div class="item" v-for="i in 15" :class="[i==1?'active':'']">
+                        <div class="icon">
+                            <img src="../assets/head.jpg" alt="">
+                        </div>
+                        <div class="mesBox">
+                            <div class="name">用户名</div>
+                            <div class="abs">A:有新的新闻</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="message">
+                <div class="topBox">
+                    <div class="title">
+                        兔斯基
+                    </div>
+                </div>
+                <div class="mesList">
+                    <div class="item left">
+                        <div class="mesicon">
+                            <img src="../assets/head.jpg" alt="">
+                        </div>
+                        <div class="text" v-if="false">
+                            汪文斌表示，中方在涉港问题上的立场是一贯、明确的，香港是中国的香港，香港事务纯属中国内政，任何外国无权干涉，任何违法行为都必然要受到法律制裁。这在任何坚持法治的国家和地区都是一样的。如果美方不反对这些基本原则同样适用于美国国会山发生的事情的话，就应该认真反思，并纠正公开为香港违法者撑腰打气、借涉港问题干涉中国内政的错误言行，避免对中美互信与合作造成损害。
+                        </div>
+                        <div class="fileBox" v-else>
+                            <div class="img">
+                                <img src="../assets/bg.jpg" alt="">
+                            </div>
+                            <div class="file"></div>
+                        </div>
+                    </div>
+                    <div class="time">
+                        <span>2015-03-05 03:20</span>
+                    </div>
+                    <div class="item right">
+                        <div class="mesicon">
+                            <img src="../assets/head.jpg" alt="">
+                        </div>
+                        <div class="text">
+                            汪文斌表示，中方在涉港问题上的立场是一贯、明确的，香港是中国的香港，香港事务纯属中国内政，任何外国无权干涉，任何违法行为都必然要受到法律制裁。这在任何坚持法治的国家和地区都是一样的。如果美方不反对这些基本原则同样适用于美国国会山发生的事情的话，就应该认真反思，并纠正公开为香港违法者撑腰打气、借涉港问题干涉中国内政的错误言行，避免对中美互信与合作造成损害。
+                        </div>
+                    </div>
+                </div>
+                <div class="sendBox" :style="{height:sendHeight+'px'}">
+                    <div class="mestool" :style="{background: !focusArea?'#f5f5f5':'white'}">
+                        <div class="item">
+                            <i class="iconfont iconbiaoqing"></i>
+                        </div>
+                    </div>
+                    <div @focus="areaFocus(true)" @blur="areaFocus(false)" contenteditable="true" class="textarea"></div>
+                    <div class="sendBtn" :style="{background: !focusArea?'#f5f5f5':'white'}">
+                        <button class="btn">发送(S)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg"></div>
+    </div>
+</template>
+
+<script>
+    export default {
+        data () {
+            return {
+                sendHeight:160,
+                focusArea:false
+            }
+        },
+        mounted(){
+
+        },
+        methods: {
+            areaFocus(type){
+                this.focusArea = type
+            }
+        },
+    }
+</script>
+<style lang="less" scoped>
+
+    ::-webkit-scrollbar {
+        /*滚动条整体样式*/
+        width : 8px;  /*高宽分别对应横竖滚动条的尺寸*/
+    }
+    ::-webkit-scrollbar-thumb {
+        /*滚动条里面小方块*/
+        background   : rgba(0,0,0,.1);
+    }
+
+    .content{
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .bg{
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: url("../assets/bg.jpg");
+            background-size: cover;
+            background-position: center;
+            filter: blur(6px);
+            z-index: 10;
+        }
+        .chatBox{
+            box-shadow: 0px 0px 3px #c5c5c5;
+            z-index: 20;
+            width: 950px;
+            height: 600px;
+            display: flex;
+            .topBox{
+                height: 70px;
+                display: flex;
+                align-items: center;
+                padding: 15px;
+            }
+            .search{
+                display: flex;
+                .iconsousuo{
+                    width: 20px;
+                    display: flex;
+                    align-items: center;
+                    background-color: #dbd9d8;
+                    padding-left: 10px;
+                    border-bottom-left-radius: 5px;
+                    border-top-left-radius: 5px;
+                }
+                .input{
+                    background-color: #dbd9d8;
+                    border: none;
+                    border-bottom-right-radius: 5px;
+                    border-top-right-radius: 5px;
+                    padding-left: 5px;
+                    width: 145px;
+                    &:focus{
+                        outline:none;
+                        background-color: white;
+                    }
+                }
+                .add{
+                    background-color: #dbd9d8;
+                    border-radius: 5px;
+                    width: 28px;
+                    height: 28px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                    color: #636363;
+                    margin-left: 10px;
+                }
+            }
+            .tool{
+                width:65px;
+                height: 100%;
+                background: #27292d;
+                padding: 10px 0;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: relative;
+                &>div{
+                    margin-bottom: 25px;
+                    &.active{
+                        color: #07c160;
+                    }
+                }
+                .headImg{
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 4px;
+                    overflow: hidden;
+                    img{
+                        width: 100%;
+                    }
+                }
+                .mesIcon{
+                    color: #9f9f9f;
+                    .iconfont{
+                        font-size: 25px;
+                    }
+                }
+                .menuIcon{
+                    position: absolute;
+                    bottom: 20px;
+                    margin-bottom: 0;
+                }
+            }
+            .user{
+                background: #eceae8;
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                .userList{
+                    flex: 1;
+                    overflow: hidden;
+                    &:hover{
+                        overflow: auto;
+                    }
+                    .item{
+                        padding: 10px;
+                        display: flex;
+                        &.active{
+                            background-color: #c6c6c6;
+                        }
+                        &:hover{
+                            cursor: pointer;
+                            background-color: #d9d9d9;
+                        }
+                        .icon{
+                            width: 45px;
+                            height: 45px;
+                            border-radius: 4px;
+                            overflow: hidden;
+                            margin-right: 15px;
+                            img{
+                                width: 100%;
+                                height: 100%;
+                            }
+                        }
+                        .mesBox{
+                            overflow: hidden;
+                            flex: 1;
+                            .name{
+                                font-size: 14px;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                            }
+                            .abs{
+                                font-size: 13px;
+                                color: #999999;
+                                padding-top: 5px;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                text-overflow: ellipsis;
+                            }
+                        }
+                    }
+
+                }
+            }
+            .message{
+                flex: 1;
+                background: #f5f5f5;
+                display: flex;
+                flex-direction: column;
+                .title{
+                    font-size: 20px;
+                    font-weight: 500;
+                }
+                .topBox{
+                    border-bottom: 1px solid #e7e7e7;
+                }
+                .mesList{
+                    flex: 1;
+                    overflow: auto;
+                    padding: 0 25px;
+                    .time{
+                        text-align: center;
+                        font-size: 12px;
+                        span{
+                            color: white;
+                            display: inline-block;
+                            background-color: #d1d1d1;
+                            padding: 2px 5px;
+                            border-radius: 2px;
+                        }
+                    }
+                    .item{
+                        display: flex;
+                        margin: 10px 0;
+                        .fileBox{
+                            margin-left: 10px;
+                            .img{
+                                img{
+                                    max-width: 350px;
+                                }
+                            }
+                        }
+                        .mesicon{
+                            width: 40px;
+                            height: 40px;
+                            img{
+                                width: 100%;
+                                height: 100%;
+                            }
+                        }
+                        .text{
+                            padding: 10px;
+                            max-width: 390px;
+                            box-shadow: 1px 1px 5px #eeeeee;
+                            border-radius: 5px;
+                            position: relative;
+                            &:after{
+                                content: "";
+                                position: absolute;
+                                width: 0px;                           /*设置宽高为0，所以div的内容为空，从才能形成三角形尖角*/
+                                height: 0px;
+
+                                border-left: 10px solid transparent;    /*transparent 表示透明*/
+                                border-right: 10px solid transparent;
+
+                            }
+                        }
+                        &.left{
+                            @color: white;
+                            .fileBox{
+                                margin-left: 10px;
+                            }
+                            .text{
+                                margin-left: 10px;
+                                background-color: @color;
+                                &:after{
+                                    top: 15px;
+                                    left: -13px;
+                                    transform: rotate(-90deg);
+                                    border-bottom: 10px solid @color;
+                                }
+                            }
+                        }
+                        &.right{
+                            @color: #59dba6;
+                            flex-flow: row-reverse;
+                            .fileBox{
+                                margin-right: 10px;
+                            }
+                            .text{
+                                margin-right: 10px;
+                                background-color: @color;
+                                &:after{
+                                    top: 15px;
+                                    right: -13px;
+                                    transform: rotate(90deg);
+                                    border-bottom: 10px solid @color;
+                                }
+                            }
+                        }
+                    }
+                }
+                .sendBox{
+                    display: flex;
+                    flex-direction: column;
+                    border-top: 1px solid #e7e7e7;
+                    position: relative;
+                    .mestool{
+                        background-color: #f5f5f5;
+                        width: 100%;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        height: 50px;
+                        display: flex;
+                        align-items: center;
+                        padding: 0 15px;
+                        .item{
+                            width: 35px;
+                            height: 35px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #818181;
+                           i{
+                               font-size: 20px;
+                           }
+                            &:hover{
+                                cursor: pointer;
+                                color: #2e2e2e;
+                            }
+                        }
+                    }
+                    .textarea{
+                        flex: 1;
+                        padding: 0 25px;
+                        padding-top: 50px;
+                        overflow: auto;
+                        &:focus{
+                            outline:none;
+                            background-color: white;
+                        }
+                    }
+                    .sendBtn{
+                        text-align: right;
+                        padding-right: 25px;
+                        padding-bottom: 10px;
+                        .btn{
+                            border: 1px solid #b6b6b6;
+                            padding:5px 15px;
+                            &:hover{
+                                background: #07c160;
+                                color: white;
+                                cursor: pointer;
+                            }
+                            &:focus{
+                                outline:none
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+</style>
