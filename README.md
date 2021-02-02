@@ -1,4 +1,4 @@
-# vue_3
+# wChat
 
 ## Project setup
 ```
