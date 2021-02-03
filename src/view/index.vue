@@ -119,14 +119,19 @@
                 })
             },
             onMessage(data) {
-                this.messageList.push(data)
-                let mesBox = this.$refs.mesBox
-                setTimeout(() => {
-                    let marginBottom = mesBox.scrollHeight - mesBox.scrollTop - mesBox.clientHeight
-                    if (marginBottom < this.marginBottom) {
-                        mesBox.scrollTop = mesBox.scrollHeight;
-                    }
-                }, 10)
+                if (data.targetId == this.userItem.userId){
+
+                }else{
+                    this.messageList.push(data)
+                    let mesBox = this.$refs.mesBox
+                    setTimeout(() => {
+                        let marginBottom = mesBox.scrollHeight - mesBox.scrollTop - mesBox.clientHeight
+                        if (marginBottom < this.marginBottom) {
+                            mesBox.scrollTop = mesBox.scrollHeight;
+                        }
+                    }, 10)
+                }
+
             },
             send() {
                 let dom = this.$refs.textarea
