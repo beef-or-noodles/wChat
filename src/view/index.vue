@@ -6,7 +6,7 @@
                     <img src="../assets/head.jpg" alt="">
                 </div>
                 <div class="mesIcon active">
-                   <i class="iconfont iconxiaoxi1"></i>
+                    <i class="iconfont iconxiaoxi1"></i>
                 </div>
                 <div class="menuIcon mesIcon">
                     <i class="iconfont iconcaidan"></i>
@@ -48,7 +48,7 @@
                         <div class="time">
                             <span>{{item.sendTime}}</span>
                         </div>
-                        <div class="item left">
+                        <div class="item" :class="[userId==item.userId?'right':'left']">
                             <div class="mesicon">
                                 <img src="../assets/head.jpg" alt="">
                             </div>
@@ -70,7 +70,8 @@
                             <i class="iconfont iconbiaoqing"></i>
                         </div>
                     </div>
-                    <div @keyup.enter.native="send" ref="textarea" @focus="areaFocus(true)" @blur="areaFocus(false)" contenteditable="true" class="textarea"></div>
+                    <div @keyup.enter.native="send" ref="textarea" @focus="areaFocus(true)" @blur="areaFocus(false)"
+                         contenteditable="true" class="textarea"></div>
                     <div class="sendBtn" :style="{background: !focusArea?'#f5f5f5':'white'}">
                         <button class="btn" @click="send">发送(S)</button>
                     </div>
@@ -83,47 +84,53 @@
 
 <script>
     import scoket_mixin from '../mixins/scoket_mixin'
+
     export default {
-        mixins:[scoket_mixin],
-        data () {
+        mixins: [scoket_mixin],
+        data() {
             return {
-                sendHeight:160,
-                marginBottom:150, // 滚动条距离底部
-                focusArea:false,
-                messageList:[]
+                sendHeight: 160,
+                marginBottom: 150, // 滚动条距离底部
+                focusArea: false,
+                userId:localStorage.getItem("userId"),
+                messageList: []
             }
         },
-        mounted(){
+        mounted() {
 
         },
         methods: {
-            areaFocus(type){
+            areaFocus(type) {
                 this.focusArea = type
             },
-            onMessage(data){
+            onMessage(data) {
                 this.messageList.push(data)
-            },
-            send(){
-                let dom = this.$refs.textarea
                 let mesBox = this.$refs.mesBox
-               let text =  dom.innerText
-                let sendTime = new Date().format('yyyy-MM-dd hh:mm')
-                // type 1 文字普通消息  2 图片消息
-               let params = {
-                   userId:1,
-                   text,
-                   sendTime,
-                   type:1
-               }
-               this.sendMessage(params)
-               dom.innerText = ""
-               dom.focus()
-                setTimeout(()=>{
-                    let marginBottom = mesBox.scrollHeight-mesBox.scrollTop-mesBox.clientHeight
-                    if(marginBottom < this.marginBottom){
+                setTimeout(() => {
+                    let marginBottom = mesBox.scrollHeight - mesBox.scrollTop - mesBox.clientHeight
+                    if (marginBottom < this.marginBottom) {
                         mesBox.scrollTop = mesBox.scrollHeight;
                     }
-                },10)
+                }, 10)
+            },
+            send() {
+                let dom = this.$refs.textarea
+                let mesBox = this.$refs.mesBox
+                let text = dom.innerText
+                let sendTime = new Date().format('yyyy-MM-dd hh:mm')
+                // type 1 文字普通消息  2 图片消息
+                let params = {
+                    targetId: 2,
+                    userId: 1,
+                    text,
+                    sendTime,
+                    type: 1
+                }
+                this.sendMessage(params)
+                this.messageList.push(params)
+                dom.innerText = ""
+                dom.focus()
+                mesBox.scrollTop = mesBox.scrollHeight;
             }
         },
     }
@@ -132,21 +139,23 @@
 
     ::-webkit-scrollbar {
         /*滚动条整体样式*/
-        width : 8px;  /*高宽分别对应横竖滚动条的尺寸*/
-    }
-    ::-webkit-scrollbar-thumb {
-        /*滚动条里面小方块*/
-        background   : rgba(0,0,0,.1);
+        width: 8px; /*高宽分别对应横竖滚动条的尺寸*/
     }
 
-    .content{
+    ::-webkit-scrollbar-thumb {
+        /*滚动条里面小方块*/
+        background: rgba(0, 0, 0, .1);
+    }
+
+    .content {
         position: fixed;
         width: 100%;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        .bg{
+
+        .bg {
             position: fixed;
             width: 100%;
             height: 100%;
@@ -156,21 +165,25 @@
             filter: blur(6px);
             z-index: 10;
         }
-        .chatBox{
+
+        .chatBox {
             box-shadow: 0px 0px 3px #c5c5c5;
             z-index: 20;
             width: 950px;
             height: 600px;
             display: flex;
-            .topBox{
+
+            .topBox {
                 height: 70px;
                 display: flex;
                 align-items: center;
                 padding: 15px;
             }
-            .search{
+
+            .search {
                 display: flex;
-                .iconsousuo{
+
+                .iconsousuo {
                     width: 20px;
                     display: flex;
                     align-items: center;
@@ -179,19 +192,22 @@
                     border-bottom-left-radius: 5px;
                     border-top-left-radius: 5px;
                 }
-                .input{
+
+                .input {
                     background-color: #dbd9d8;
                     border: none;
                     border-bottom-right-radius: 5px;
                     border-top-right-radius: 5px;
                     padding-left: 5px;
                     width: 145px;
-                    &:focus{
-                        outline:none;
+
+                    &:focus {
+                        outline: none;
                         background-color: white;
                     }
                 }
-                .add{
+
+                .add {
                     background-color: #dbd9d8;
                     border-radius: 5px;
                     width: 28px;
@@ -204,8 +220,9 @@
                     margin-left: 10px;
                 }
             }
-            .tool{
-                width:65px;
+
+            .tool {
+                width: 65px;
                 height: 100%;
                 background: #27292d;
                 padding: 10px 0;
@@ -214,70 +231,87 @@
                 flex-direction: column;
                 align-items: center;
                 position: relative;
-                &>div{
+
+                & > div {
                     margin-bottom: 25px;
-                    &.active{
+
+                    &.active {
                         color: #07c160;
                     }
                 }
-                .headImg{
+
+                .headImg {
                     width: 40px;
                     height: 40px;
                     border-radius: 4px;
                     overflow: hidden;
-                    img{
+
+                    img {
                         width: 100%;
                     }
                 }
-                .mesIcon{
+
+                .mesIcon {
                     color: #9f9f9f;
-                    .iconfont{
+
+                    .iconfont {
                         font-size: 25px;
                     }
                 }
-                .menuIcon{
+
+                .menuIcon {
                     position: absolute;
                     bottom: 20px;
                     margin-bottom: 0;
                 }
             }
-            .user{
+
+            .user {
                 background: #eceae8;
                 position: relative;
                 display: flex;
                 flex-direction: column;
-                .userList{
+
+                .userList {
                     flex: 1;
                     overflow: auto;
-                    .item{
+
+                    .item {
                         padding: 10px;
                         display: flex;
-                        &.active{
+
+                        &.active {
                             background-color: #c6c6c6;
                         }
-                        &:hover{
+
+                        &:hover {
                             cursor: pointer;
                             background-color: #d9d9d9;
                         }
-                        .icon{
+
+                        .icon {
                             width: 45px;
                             height: 45px;
                             border-radius: 4px;
                             overflow: hidden;
                             margin-right: 15px;
-                            img{
+
+                            img {
                                 width: 100%;
                                 height: 100%;
                             }
                         }
-                        .mesBox{
+
+                        .mesBox {
                             overflow: hidden;
                             flex: 1;
-                            .nameBox{
+
+                            .nameBox {
                                 display: flex;
                                 align-items: center;
                                 justify-content: space-between;
-                                .name{
+
+                                .name {
                                     display: block;
                                     flex: 1;
                                     width: 0px;
@@ -287,7 +321,8 @@
                                     text-overflow: ellipsis;
                                     padding-right: 5px;
                                 }
-                                .time{
+
+                                .time {
                                     display: block;
                                     width: 85px;
                                     text-align: right;
@@ -295,7 +330,7 @@
                                 }
                             }
 
-                            .abs{
+                            .abs {
                                 font-size: 13px;
                                 color: #999999;
                                 padding-top: 5px;
@@ -308,23 +343,28 @@
 
                 }
             }
-            .message{
+
+            .message {
                 flex: 1;
                 background: #f5f5f5;
                 display: flex;
                 flex-direction: column;
-                .title{
+
+                .title {
                     font-size: 20px;
                     font-weight: 500;
                 }
-                .topBox{
+
+                .topBox {
                     border-bottom: 1px solid #e7e7e7;
                 }
-                .mesList{
+
+                .mesList {
                     flex: 1;
                     overflow: auto;
                     padding: 0 25px;
-                    .loading{
+
+                    .loading {
                         font-size: 12px;
                         text-align: center;
                         padding-left: 20px;
@@ -332,7 +372,8 @@
                         align-items: center;
                         justify-content: center;
                         padding: 10px 0;
-                        &::before{
+
+                        &::before {
                             content: "";
                             display: block;
                             width: 12px;
@@ -341,20 +382,33 @@
                             border-radius: 50%;
                             margin-right: 8px;
                             border-left-color: #c10003;
-                            animation:turn 1s linear infinite;
+                            animation: turn 1s linear infinite;
                         }
-                        @keyframes turn{
-                            0%{-webkit-transform:rotate(0deg);}
-                            25%{-webkit-transform:rotate(90deg);}
-                            50%{-webkit-transform:rotate(180deg);}
-                            75%{-webkit-transform:rotate(270deg);}
-                            100%{-webkit-transform:rotate(360deg);}
+
+                        @keyframes turn {
+                            0% {
+                                -webkit-transform: rotate(0deg);
+                            }
+                            25% {
+                                -webkit-transform: rotate(90deg);
+                            }
+                            50% {
+                                -webkit-transform: rotate(180deg);
+                            }
+                            75% {
+                                -webkit-transform: rotate(270deg);
+                            }
+                            100% {
+                                -webkit-transform: rotate(360deg);
+                            }
                         }
                     }
-                    .time{
+
+                    .time {
                         text-align: center;
                         font-size: 12px;
-                        span{
+
+                        span {
                             color: white;
                             display: inline-block;
                             background-color: #d1d1d1;
@@ -362,52 +416,63 @@
                             border-radius: 2px;
                         }
                     }
-                    .item{
+
+                    .item {
                         display: flex;
                         margin: 10px 0;
-                        .fileBox{
+
+                        .fileBox {
                             margin-left: 10px;
-                            .img{
-                                img{
+
+                            .img {
+                                img {
                                     max-width: 350px;
                                 }
                             }
                         }
-                        .mesicon{
+
+                        .mesicon {
                             width: 40px;
                             height: 40px;
-                            img{
+
+                            img {
                                 width: 100%;
                                 height: 100%;
                             }
                         }
-                        .text{
+
+                        .text {
                             padding: 10px;
                             max-width: 390px;
                             box-shadow: 1px 1px 5px #eeeeee;
                             border-radius: 5px;
                             position: relative;
                             word-wrap: break-word;
-                            &:after{
+
+                            &:after {
                                 content: "";
                                 position: absolute;
-                                width: 0px;                           /*设置宽高为0，所以div的内容为空，从才能形成三角形尖角*/
+                                width: 0px; /*设置宽高为0，所以div的内容为空，从才能形成三角形尖角*/
                                 height: 0px;
 
-                                border-left: 10px solid transparent;    /*transparent 表示透明*/
+                                border-left: 10px solid transparent; /*transparent 表示透明*/
                                 border-right: 10px solid transparent;
 
                             }
                         }
-                        &.left{
+
+                        &.left {
                             @color: white;
-                            .fileBox{
+
+                            .fileBox {
                                 margin-left: 10px;
                             }
-                            .text{
+
+                            .text {
                                 margin-left: 10px;
                                 background-color: @color;
-                                &:after{
+
+                                &:after {
                                     top: 15px;
                                     left: -13px;
                                     transform: rotate(-90deg);
@@ -415,16 +480,20 @@
                                 }
                             }
                         }
-                        &.right{
+
+                        &.right {
                             @color: #59dba6;
                             flex-flow: row-reverse;
-                            .fileBox{
+
+                            .fileBox {
                                 margin-right: 10px;
                             }
-                            .text{
+
+                            .text {
                                 margin-right: 10px;
                                 background-color: @color;
-                                &:after{
+
+                                &:after {
                                     top: 15px;
                                     right: -13px;
                                     transform: rotate(90deg);
@@ -434,12 +503,14 @@
                         }
                     }
                 }
-                .sendBox{
+
+                .sendBox {
                     display: flex;
                     flex-direction: column;
                     border-top: 1px solid #e7e7e7;
                     position: relative;
-                    .mestool{
+
+                    .mestool {
                         background-color: #f5f5f5;
                         width: 100%;
                         position: absolute;
@@ -449,48 +520,57 @@
                         display: flex;
                         align-items: center;
                         padding: 0 15px;
-                        .item{
+
+                        .item {
                             width: 35px;
                             height: 35px;
                             display: flex;
                             align-items: center;
                             justify-content: center;
                             color: #818181;
-                           i{
-                               font-size: 20px;
-                           }
-                            &:hover{
+
+                            i {
+                                font-size: 20px;
+                            }
+
+                            &:hover {
                                 cursor: pointer;
                                 color: #2e2e2e;
                             }
                         }
                     }
-                    .textarea{
+
+                    .textarea {
                         flex: 1;
                         padding: 0 25px;
                         padding-top: 50px;
                         overflow: auto;
                         word-wrap: break-word;
                         max-width: 634px;
-                        &:focus{
-                            outline:none;
+
+                        &:focus {
+                            outline: none;
                             background-color: white;
                         }
                     }
-                    .sendBtn{
+
+                    .sendBtn {
                         text-align: right;
                         padding-right: 25px;
                         padding-bottom: 10px;
-                        .btn{
+
+                        .btn {
                             border: 1px solid #b6b6b6;
-                            padding:5px 15px;
-                            &:hover{
+                            padding: 5px 15px;
+
+                            &:hover {
                                 background: #07c160;
                                 color: white;
                                 cursor: pointer;
                             }
-                            &:focus{
-                                outline:none
+
+                            &:focus {
+                                outline: none
                             }
                         }
                     }
