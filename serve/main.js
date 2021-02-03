@@ -1,65 +1,36 @@
 /**
  * Created by admin on 2021/2/3.
- * node 服务文件
+ * 模拟服务接口
  */
+const express = require("express")
+const app = express()
+const bodyparser = require('body-parser')
+app.use(bodyparser.json(),bodyparser.urlencoded({extended:true}))
 
-// 写死用户
-const userList = [{
-    userId:1,
-    userName:'吴万强',
-    headIcon:'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3250602694,1048058176&fm=26&gp=0.jpg',
-},{
-    userId:2,
-    userName:'小小只',
-    headIcon:'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3755467654,3504056667&fm=26&gp=0.jpg',
-}]
+//设置跨域请求头  一个中间件设置跨域  主要是Access-Control-Allow-Origin字段 允许的访问源
+app.all('*', function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By", ' 3.2.1');
+    res.header("Content-Type", "application/json;charset=utf-8");
+    next();
+});
 
-var ws = require('nodejs-websocket')
-var server = ws.createServer(function (conn) {
-    let params = strPath(conn.path) // 接收数据
-    let filterArr = userList.filter(ls=>ls.userId==params.userId)
-    let userInfo = filterArr[0]
-    console.log('连接用户-',userInfo.userName)
-    conn.on("text", function (str) {
-        let message = JSON.parse(str)
-        if(message.hasOwnProperty("type")&&message.type=="heartbeat"){
-            // 返回心跳数据
-            conn.sendText(JSON.stringify(message))
-        }else{
-            let handleResult = {
-                handleResult:message
-            }
-            let targetId = message.targetId // 目标发送用户
-            //返回给所有客户端的数据(相当于公告、通知)
-            server.connections.forEach(function (conn) {
-               if(targetId == strPath(conn.path).userId){ // 发送给目标用户
-                   conn.sendText(JSON.stringify(handleResult))
-               }
-            })
-        }
-    })
-    conn.on("close", function (code, reason) {
-        console.log("Connection closed")
-    })
-    conn.on("error",() => {
-        console.log('服务异常关闭...')
-    })
-}).listen(8001)
-function strPath(path){
-    try {
-        let obj = {}
-        let str = path.substring(2,path.length)
-        let a1 = str.split('&')
-        for(let i in a1){
-            let s1 = a1[i].split('=')
-            obj[s1[0]] = s1[1].toString()
-        }
-        return obj
-    }catch (e) {
-        return {}
-    }
-
-    return obj
-}
-
-console.log("ws://localhost:8001");
+app.get('/userList',(req,res,next)=>{
+    console.log("get => userList");
+   // 用户数据
+    const userList = [{
+        userId:1,
+        userName:'吴万强',
+        headIcon:'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3250602694,1048058176&fm=26&gp=0.jpg',
+    },{
+        userId:2,
+        userName:'小小只',
+        headIcon:'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3755467654,3504056667&fm=26&gp=0.jpg',
+    }]
+    res.send(userList)
+})
+app.listen(8002,()=>{
+    console.log("http://10.0.0.53:8002");
+})

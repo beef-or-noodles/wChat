@@ -23,14 +23,17 @@
                     </div>
                 </div>
                 <div class="userList">
-                    <div class="item" v-for="i in 1" :class="[i==1?'active':'']">
+                    <div class="item"
+                         v-for="item in userList"
+                         @click="selectUser(item)"
+                         :class="[item.userId==userItem.userId?'active':'']">
                         <div class="icon">
-                            <img src="../assets/head.jpg" alt="">
+                            <img :src="item.headIcon" alt="">
                         </div>
                         <div class="mesBox">
                             <div class="nameBox">
-                                <span class="name">用户名户名</span>
-                                <span class="time">2015-02 12:05</span>
+                                <span class="name">{{item.userName}}</span>
+                                <span class="time">03-05</span>
                             </div>
                             <div class="abs">A:有新的新闻</div>
                         </div>
@@ -38,44 +41,46 @@
                 </div>
             </div>
             <div class="message">
-                <div class="topBox">
-                    <div class="title">
-                        兔斯基
-                    </div>
-                </div>
-                <div class="mesList" ref="mesBox">
-                    <template v-for="item in messageList">
-                        <div class="time">
-                            <span>{{item.sendTime}}</span>
+                <template v-if="userItem.userId">
+                    <div class="topBox">
+                        <div class="title">
+                            {{userItem.userName}}
                         </div>
-                        <div class="item" :class="[userId==item.userId?'right':'left']">
-                            <div class="mesicon">
-                                <img src="../assets/head.jpg" alt="">
+                    </div>
+                    <div class="mesList" ref="mesBox">
+                        <template v-for="item in messageList">
+                            <div class="time">
+                                <span>{{item.sendTime}}</span>
                             </div>
-                            <div class="text" v-if="item.type == 1">
-                                {{item.text}}
-                            </div>
-                            <div class="fileBox" v-else-if="item.type==2">
-                                <div class="img">
-                                    <img :src="item.text" alt="">
+                            <div class="item" :class="[userId==item.userId?'right':'left']">
+                                <div class="mesicon">
+                                    <img src="../assets/head.jpg" alt="">
+                                </div>
+                                <div class="text" v-if="item.type == 1">
+                                    {{item.text}}
+                                </div>
+                                <div class="fileBox" v-else-if="item.type==2">
+                                    <div class="img">
+                                        <img :src="item.text" alt="">
+                                    </div>
                                 </div>
                             </div>
+                        </template>
+                        <div class="loading" v-if="lockReconnect">连接中。。。</div>
+                    </div>
+                    <div class="sendBox" :style="{height:sendHeight+'px'}">
+                        <div class="mestool" :style="{background: !focusArea?'#f5f5f5':'white'}">
+                            <div class="item">
+                                <i class="iconfont iconbiaoqing"></i>
+                            </div>
                         </div>
-                    </template>
-                    <div class="loading" v-if="lockReconnect">连接中。。。</div>
-                </div>
-                <div class="sendBox" :style="{height:sendHeight+'px'}">
-                    <div class="mestool" :style="{background: !focusArea?'#f5f5f5':'white'}">
-                        <div class="item">
-                            <i class="iconfont iconbiaoqing"></i>
+                        <div @keyup.enter.native="send" ref="textarea" @focus="areaFocus(true)" @blur="areaFocus(false)"
+                             contenteditable="true" class="textarea"></div>
+                        <div class="sendBtn" :style="{background: !focusArea?'#f5f5f5':'white'}">
+                            <button class="btn" @click="send">发送(S)</button>
                         </div>
                     </div>
-                    <div @keyup.enter.native="send" ref="textarea" @focus="areaFocus(true)" @blur="areaFocus(false)"
-                         contenteditable="true" class="textarea"></div>
-                    <div class="sendBtn" :style="{background: !focusArea?'#f5f5f5':'white'}">
-                        <button class="btn" @click="send">发送(S)</button>
-                    </div>
-                </div>
+                </template>
             </div>
         </div>
         <div class="bg"></div>
@@ -84,7 +89,7 @@
 
 <script>
     import scoket_mixin from '../mixins/scoket_mixin'
-
+    import axios from 'axios'
     export default {
         mixins: [scoket_mixin],
         data() {
@@ -93,15 +98,25 @@
                 marginBottom: 150, // 滚动条距离底部
                 focusArea: false,
                 userId:localStorage.getItem("userId"),
-                messageList: []
+                messageList: [],
+                userList:[],
+                userItem:{}
             }
         },
-        mounted() {
-
+        created() {
+            this.getUserList()
         },
         methods: {
             areaFocus(type) {
                 this.focusArea = type
+            },
+            selectUser(item){
+                this.userItem = item
+            },
+            getUserList(){
+                axios.get("http://10.0.0.53:8002/userList").then(res=>{
+                    this.userList = res.data.filter(ls=>ls.userId != this.userId)
+                })
             },
             onMessage(data) {
                 this.messageList.push(data)
@@ -120,8 +135,8 @@
                 let sendTime = new Date().format('yyyy-MM-dd hh:mm')
                 // type 1 文字普通消息  2 图片消息
                 let params = {
-                    targetId: 2,
-                    userId: 1,
+                    targetId: this.userItem.userId,
+                    userId: this.userId,
                     text,
                     sendTime,
                     type: 1
@@ -130,7 +145,10 @@
                 this.messageList.push(params)
                 dom.innerText = ""
                 dom.focus()
-                mesBox.scrollTop = mesBox.scrollHeight;
+                setTimeout(()=>{
+                    mesBox.scrollTop = mesBox.scrollHeight;
+                },10)
+
             }
         },
     }
