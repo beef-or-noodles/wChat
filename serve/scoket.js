@@ -2,19 +2,11 @@
  * Created by admin on 2021/2/3.
  * node 服务文件
  */
-const userList = [{
-    userId:1,
-    userName:'吴万强',
-    headIcon:'https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=3250602694,1048058176&fm=26&gp=0.jpg',
-},{
-    userId:2,
-    userName:'小小只',
-    headIcon:'https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=3755467654,3504056667&fm=26&gp=0.jpg',
-}]
+const data = require("./data.js")
 var ws = require('nodejs-websocket')
 var server = ws.createServer(function (conn) {
     let params = strPath(conn.path) // 接收数据
-    let filterArr = userList.filter(ls=>ls.userId==params.userId)
+    let filterArr = data.userList.filter(ls=>ls.userId==params.userId)
     let userInfo = filterArr[0]
     console.log('连接用户-',userInfo.userName)
     conn.on("text", function (str) {
@@ -23,10 +15,10 @@ var server = ws.createServer(function (conn) {
             // 返回心跳数据
             conn.sendText(JSON.stringify(message))
         }else{
+            let targetId = message.targetId // 目标发送用户
             let handleResult = {
                 handleResult:message
             }
-            let targetId = message.targetId // 目标发送用户
             //返回给所有客户端的数据(相当于公告、通知)
             server.connections.forEach(function (conn) {
                if(targetId == strPath(conn.path).userId){ // 发送给目标用户

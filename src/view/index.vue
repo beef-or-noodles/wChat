@@ -3,7 +3,7 @@
         <div class="chatBox">
             <div class="tool">
                 <div class="headImg">
-                    <img src="../assets/head.jpg" alt="">
+                    <img :src="myInfo.headIcon" alt="">
                 </div>
                 <div class="mesIcon active">
                     <i class="iconfont iconxiaoxi1"></i>
@@ -27,15 +27,16 @@
                          v-for="item in userList"
                          @click="selectUser(item)"
                          :class="[item.userId==userItem.userId?'active':'']">
+                        <div class="dot" v-if="item.read"></div>
                         <div class="icon">
                             <img :src="item.headIcon" alt="">
                         </div>
                         <div class="mesBox">
                             <div class="nameBox">
                                 <span class="name">{{item.userName}}</span>
-                                <span class="time">03-05</span>
+                                <span class="time">{{item.time}}</span>
                             </div>
-                            <div class="abs">A:有新的新闻</div>
+                            <div class="abs">{{item.text}}</div>
                         </div>
                     </div>
                 </div>
@@ -49,12 +50,12 @@
                     </div>
                     <div class="mesList" ref="mesBox">
                         <template v-for="item in messageList">
-                            <div class="time">
-                                <span>{{item.sendTime}}</span>
-                            </div>
+<!--                            <div class="time">-->
+<!--                                <span>{{item.sendTime}}</span>-->
+<!--                            </div>-->
                             <div class="item" :class="[userId==item.userId?'right':'left']">
                                 <div class="mesicon">
-                                    <img src="../assets/head.jpg" alt="">
+                                    <img :src="item.headIcon" alt="">
                                 </div>
                                 <div class="text" v-if="item.type == 1">
                                     {{item.text}}
@@ -99,6 +100,7 @@
                 focusArea: false,
                 userId:localStorage.getItem("userId"),
                 messageList: [],
+                myInfo:{},
                 userList:[],
                 userItem:{}
             }
@@ -111,17 +113,19 @@
                 this.focusArea = type
             },
             selectUser(item){
+                item['read'] = false
                 this.userItem = item
             },
             getUserList(){
-                axios.get("http://10.0.0.53:8002/userList").then(res=>{
+                axios.get("http://localhost:8002/userList").then(res=>{
+                    this.myInfo = res.data.filter(ls=>ls.userId == this.userId)[0]
                     this.userList = res.data.filter(ls=>ls.userId != this.userId)
                 })
             },
             onMessage(data) {
-                if (data.targetId == this.userItem.userId){
-
-                }else{
+                let _this = this
+                if (data.userId == this.userItem.userId){ // 当前打开的对话
+                    addUserText(1)
                     this.messageList.push(data)
                     let mesBox = this.$refs.mesBox
                     setTimeout(() => {
@@ -130,6 +134,17 @@
                             mesBox.scrollTop = mesBox.scrollHeight;
                         }
                     }, 10)
+                }else{ // 未打开对话 添加到消息列表
+                    addUserText(2)
+                }
+                function addUserText(type){
+                    _this.userList.forEach(ls=>{
+                        if(ls['userId'] == data.userId){
+                            ls['time'] = data.time
+                            ls['text'] = data.text
+                            ls['read'] = type==2?true:false
+                        }
+                    })
                 }
 
             },
@@ -141,8 +156,9 @@
                 // type 1 文字普通消息  2 图片消息
                 let params = {
                     targetId: this.userItem.userId,
-                    userId: this.userId,
+                    userId: this.myInfo.userId,
                     text,
+                    headIcon:this.myInfo.headIcon,
                     sendTime,
                     type: 1
                 }
@@ -302,7 +318,16 @@
                     .item {
                         padding: 10px;
                         display: flex;
-
+                        position: relative;
+                        .dot{
+                            width: 10px;
+                            height: 10px;
+                            border-radius: 50%;
+                            background: red;
+                            position: absolute;
+                            left: 50px;
+                            top: 5px;
+                        }
                         &.active {
                             background-color: #c6c6c6;
                         }
@@ -354,6 +379,7 @@
                             }
 
                             .abs {
+                                width: 150px;
                                 font-size: 13px;
                                 color: #999999;
                                 padding-top: 5px;
