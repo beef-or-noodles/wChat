@@ -23,7 +23,7 @@
                     </div>
                 </div>
                 <div class="userList">
-                    <div class="item" v-for="i in 15" :class="[i==1?'active':'']">
+                    <div class="item" v-for="i in 1" :class="[i==1?'active':'']">
                         <div class="icon">
                             <img src="../assets/head.jpg" alt="">
                         </div>
@@ -43,32 +43,26 @@
                         兔斯基
                     </div>
                 </div>
-                <div class="mesList">
-                    <div class="item left">
-                        <div class="mesicon">
-                            <img src="../assets/head.jpg" alt="">
+                <div class="mesList" ref="mesBox">
+                    <template v-for="item in messageList">
+                        <div class="time">
+                            <span>{{item.sendTime}}</span>
                         </div>
-                        <div class="text" v-if="false">
-                            汪文斌表示，中方在涉港问题上的立场是一贯、明确的，香港是中国的香港，香港事务纯属中国内政，任何外国无权干涉，任何违法行为都必然要受到法律制裁。这在任何坚持法治的国家和地区都是一样的。如果美方不反对这些基本原则同样适用于美国国会山发生的事情的话，就应该认真反思，并纠正公开为香港违法者撑腰打气、借涉港问题干涉中国内政的错误言行，避免对中美互信与合作造成损害。
-                        </div>
-                        <div class="fileBox" v-else>
-                            <div class="img">
-                                <img src="../assets/bg.jpg" alt="">
+                        <div class="item left">
+                            <div class="mesicon">
+                                <img src="../assets/head.jpg" alt="">
                             </div>
-                            <div class="file"></div>
+                            <div class="text" v-if="item.type == 1">
+                                {{item.text}}
+                            </div>
+                            <div class="fileBox" v-else-if="item.type==2">
+                                <div class="img">
+                                    <img :src="item.text" alt="">
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="time">
-                        <span>2015-03-05 03:20</span>
-                    </div>
-                    <div class="item right">
-                        <div class="mesicon">
-                            <img src="../assets/head.jpg" alt="">
-                        </div>
-                        <div class="text">
-                            汪文斌表示，中方在涉港问题上的立场是一贯、明确的，香港是中国的香港，香港事务纯属中国内政，任何外国无权干涉，任何违法行为都必然要受到法律制裁。这在任何坚持法治的国家和地区都是一样的。如果美方不反对这些基本原则同样适用于美国国会山发生的事情的话，就应该认真反思，并纠正公开为香港违法者撑腰打气、借涉港问题干涉中国内政的错误言行，避免对中美互信与合作造成损害。
-                        </div>
-                    </div>
+                    </template>
+                    <div class="loading" v-if="lockReconnect">连接中。。。</div>
                 </div>
                 <div class="sendBox" :style="{height:sendHeight+'px'}">
                     <div class="mestool" :style="{background: !focusArea?'#f5f5f5':'white'}">
@@ -76,9 +70,9 @@
                             <i class="iconfont iconbiaoqing"></i>
                         </div>
                     </div>
-                    <div @focus="areaFocus(true)" @blur="areaFocus(false)" contenteditable="true" class="textarea"></div>
+                    <div @keyup.enter.native="send" ref="textarea" @focus="areaFocus(true)" @blur="areaFocus(false)" contenteditable="true" class="textarea"></div>
                     <div class="sendBtn" :style="{background: !focusArea?'#f5f5f5':'white'}">
-                        <button class="btn">发送(S)</button>
+                        <button class="btn" @click="send">发送(S)</button>
                     </div>
                 </div>
             </div>
@@ -88,11 +82,15 @@
 </template>
 
 <script>
+    import scoket_mixin from '../mixins/scoket_mixin'
     export default {
+        mixins:[scoket_mixin],
         data () {
             return {
                 sendHeight:160,
-                focusArea:false
+                marginBottom:150, // 滚动条距离底部
+                focusArea:false,
+                messageList:[]
             }
         },
         mounted(){
@@ -101,6 +99,31 @@
         methods: {
             areaFocus(type){
                 this.focusArea = type
+            },
+            onMessage(data){
+                this.messageList.push(data)
+            },
+            send(){
+                let dom = this.$refs.textarea
+                let mesBox = this.$refs.mesBox
+               let text =  dom.innerText
+                let sendTime = new Date().format('yyyy-MM-dd hh:mm')
+                // type 1 文字普通消息  2 图片消息
+               let params = {
+                   userId:1,
+                   text,
+                   sendTime,
+                   type:1
+               }
+               this.sendMessage(params)
+               dom.innerText = ""
+               dom.focus()
+                setTimeout(()=>{
+                    let marginBottom = mesBox.scrollHeight-mesBox.scrollTop-mesBox.clientHeight
+                    if(marginBottom < this.marginBottom){
+                        mesBox.scrollTop = mesBox.scrollHeight;
+                    }
+                },10)
             }
         },
     }
@@ -301,6 +324,33 @@
                     flex: 1;
                     overflow: auto;
                     padding: 0 25px;
+                    .loading{
+                        font-size: 12px;
+                        text-align: center;
+                        padding-left: 20px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 10px 0;
+                        &::before{
+                            content: "";
+                            display: block;
+                            width: 12px;
+                            height: 12px;
+                            border: 2px solid #9f9f9f;
+                            border-radius: 50%;
+                            margin-right: 8px;
+                            border-left-color: #c10003;
+                            animation:turn 1s linear infinite;
+                        }
+                        @keyframes turn{
+                            0%{-webkit-transform:rotate(0deg);}
+                            25%{-webkit-transform:rotate(90deg);}
+                            50%{-webkit-transform:rotate(180deg);}
+                            75%{-webkit-transform:rotate(270deg);}
+                            100%{-webkit-transform:rotate(360deg);}
+                        }
+                    }
                     .time{
                         text-align: center;
                         font-size: 12px;
@@ -337,6 +387,7 @@
                             box-shadow: 1px 1px 5px #eeeeee;
                             border-radius: 5px;
                             position: relative;
+                            word-wrap: break-word;
                             &:after{
                                 content: "";
                                 position: absolute;
@@ -419,6 +470,8 @@
                         padding: 0 25px;
                         padding-top: 50px;
                         overflow: auto;
+                        word-wrap: break-word;
+                        max-width: 634px;
                         &:focus{
                             outline:none;
                             background-color: white;

@@ -4,7 +4,7 @@
 import {createRouter,createWebHashHistory} from "vue-router"
 
 const routes = [
-    {path:'/',component:import("../view/index")}
+    {path:'/',component:()=>import("../view/index")}
 ]
 const router = createRouter({
     history: createWebHashHistory(),

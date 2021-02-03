@@ -4,6 +4,7 @@
   "description": "服务包",
   "main": "main.js",
   "scripts": {
+    "serve": "node main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "wwq",
