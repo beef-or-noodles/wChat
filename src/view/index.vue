@@ -29,8 +29,8 @@
                         </div>
                         <div class="mesBox">
                             <div class="nameBox">
-                               <span class="name">用户名户名</span>
-                               <span class="time">2015-02 12:05</span>
+                                <span class="name">用户名户名</span>
+                                <span class="time">2015-02 12:05</span>
                             </div>
                             <div class="abs">A:有新的新闻</div>
                         </div>
@@ -225,10 +225,7 @@
                 flex-direction: column;
                 .userList{
                     flex: 1;
-                    overflow: hidden;
-                    &:hover{
-                        overflow: auto;
-                    }
+                    overflow: auto;
                     .item{
                         padding: 10px;
                         display: flex;
