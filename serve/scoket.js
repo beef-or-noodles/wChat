@@ -4,15 +4,12 @@
  */
 const data = require("./data.js")
 var ws = require('nodejs-websocket')
-//文件模块
-let fs = require('fs');
-//系统路径模块
-let path = require('path');
-
+var utils = require('./utils.js')
 
 var server = ws.createServer(function (conn) {
     let params = strPath(conn.path) // 接收数据
-    let filterArr = data.userList.filter(ls=>ls.userId==params.userId)
+    let list = utils.readJson('user.json')
+    let filterArr = list.filter(ls=>ls.userId==params.userId)
     let userInfo = filterArr[0]
     console.log('连接用户-',userInfo.userName)
     conn.on("text", function (str) {
@@ -22,9 +19,8 @@ var server = ws.createServer(function (conn) {
             conn.sendText(JSON.stringify(message))
         }else{
             //读取json聊天数据
+            let list = utils.readJson('data.json')
 
-            let rawdata = fs.readFileSync('data.json');
-            let list = JSON.parse(rawdata.toString())
             let targetId = message.targetId // 目标发送用户
             let handleResult = {
                 handleResult:message
@@ -33,7 +29,7 @@ var server = ws.createServer(function (conn) {
             server.connections.forEach(function (conn) {
                 if(targetId == strPath(conn.path).userId){ // 发送给目标用户
                     list.push(message)
-                    saveJson(list,'data')
+                    utils.saveJson(list,'data')
                     conn.sendText(JSON.stringify(handleResult))
                 }
             })
@@ -48,20 +44,6 @@ var server = ws.createServer(function (conn) {
 }).listen(8001)
 
 
-function saveJson(jsonData, fileName) {
-// 格式化json
-    let text = JSON.stringify(jsonData)
-// 指定要创建的目录和文件名称 __dirname为执行当前js文件的目录
-    let file = path.join('./', fileName + '.json');
-    //写入文件
-    fs.writeFile(file, text, function (err) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log('文件创建成功~' + file);
-        }
-    });
-}
 /* 截取链接参数 */
 function strPath(path){
     try {

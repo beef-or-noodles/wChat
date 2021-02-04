@@ -106,7 +106,12 @@
             }
         },
         created() {
-            this.getUserList()
+            if(this.userId){
+                this.getUserList()
+            }else {
+                this.$router.replace('/login')
+            }
+
         },
         methods: {
             areaFocus(type) {
