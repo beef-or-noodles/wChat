@@ -5,8 +5,7 @@
   "main": "main.js",
   "scripts": {
     "scoket": "node scoket.js",
-    "main": "node main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "main": "node main.js"
   },
   "author": "wwq",
   "license": "ISC",

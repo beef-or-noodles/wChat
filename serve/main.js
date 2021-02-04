@@ -5,6 +5,9 @@
 const express = require("express")
 const app = express()
 const bodyparser = require('body-parser')
+//文件模块
+let fs = require('fs');
+
 app.use(bodyparser.json(),bodyparser.urlencoded({extended:true}))
 
 const data = require("./data")
@@ -24,6 +27,20 @@ app.get('/userList',(req,res,next)=>{
     const userList = data.userList
     res.send(userList)
 })
+
+app.get('/historyList',(req,res,next)=>{
+    let arr = req.query.roomId.split(',')
+    let list = []
+    let rawdata = fs.readFileSync('data.json');
+    let jsonLIst = JSON.parse(rawdata.toString())
+    jsonLIst.forEach(item=>{
+        if((item.userId == arr[0] && item.targetId==arr[1]) || (item.userId == arr[1] && item.targetId==arr[0])){
+            list.push(item)
+        }
+    })
+    res.send(list)
+})
+
 app.listen(8002,()=>{
     console.log("http://localhost:8002");
 })

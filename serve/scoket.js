@@ -4,6 +4,12 @@
  */
 const data = require("./data.js")
 var ws = require('nodejs-websocket')
+//文件模块
+let fs = require('fs');
+//系统路径模块
+let path = require('path');
+
+
 var server = ws.createServer(function (conn) {
     let params = strPath(conn.path) // 接收数据
     let filterArr = data.userList.filter(ls=>ls.userId==params.userId)
@@ -15,15 +21,21 @@ var server = ws.createServer(function (conn) {
             // 返回心跳数据
             conn.sendText(JSON.stringify(message))
         }else{
+            //读取json聊天数据
+
+            let rawdata = fs.readFileSync('data.json');
+            let list = JSON.parse(rawdata.toString())
             let targetId = message.targetId // 目标发送用户
             let handleResult = {
                 handleResult:message
             }
             //返回给所有客户端的数据(相当于公告、通知)
             server.connections.forEach(function (conn) {
-               if(targetId == strPath(conn.path).userId){ // 发送给目标用户
-                   conn.sendText(JSON.stringify(handleResult))
-               }
+                if(targetId == strPath(conn.path).userId){ // 发送给目标用户
+                    list.push(message)
+                    saveJson(list,'data')
+                    conn.sendText(JSON.stringify(handleResult))
+                }
             })
         }
     })
@@ -35,6 +47,21 @@ var server = ws.createServer(function (conn) {
     })
 }).listen(8001)
 
+
+function saveJson(jsonData, fileName) {
+// 格式化json
+    let text = JSON.stringify(jsonData)
+// 指定要创建的目录和文件名称 __dirname为执行当前js文件的目录
+    let file = path.join('./', fileName + '.json');
+    //写入文件
+    fs.writeFile(file, text, function (err) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log('文件创建成功~' + file);
+        }
+    });
+}
 /* 截取链接参数 */
 function strPath(path){
     try {

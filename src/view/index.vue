@@ -115,6 +115,19 @@
             selectUser(item){
                 item['read'] = false
                 this.userItem = item
+                this.getMessageList(item.userId)
+                setTimeout(()=>{
+                    let dom = this.$refs.textarea
+                    dom.focus()
+                },0)
+            },
+            // 获取消息列表
+            getMessageList(tagetId){
+                let roomId = `${this.userId},${tagetId}`
+                axios.get(`http://localhost:8002/historyList?roomId=${roomId}`).then(res=>{
+                    this.messageList = res.data
+                    this.goBottom()
+                })
             },
             getUserList(){
                 axios.get("http://localhost:8002/userList").then(res=>{
@@ -122,18 +135,22 @@
                     this.userList = res.data.filter(ls=>ls.userId != this.userId)
                 })
             },
+            // 到底部
+            goBottom(){
+                let mesBox = this.$refs.mesBox
+                setTimeout(() => {
+                    let marginBottom = mesBox.scrollHeight - mesBox.scrollTop - mesBox.clientHeight
+                    if (marginBottom < this.marginBottom) {
+                        mesBox.scrollTop = mesBox.scrollHeight;
+                    }
+                }, 10)
+            },
             onMessage(data) {
                 let _this = this
                 if (data.userId == this.userItem.userId){ // 当前打开的对话
                     addUserText(1)
                     this.messageList.push(data)
-                    let mesBox = this.$refs.mesBox
-                    setTimeout(() => {
-                        let marginBottom = mesBox.scrollHeight - mesBox.scrollTop - mesBox.clientHeight
-                        if (marginBottom < this.marginBottom) {
-                            mesBox.scrollTop = mesBox.scrollHeight;
-                        }
-                    }, 10)
+                    this.goBottom()
                 }else{ // 未打开对话 添加到消息列表
                     addUserText(2)
                 }
