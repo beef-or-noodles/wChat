@@ -20,7 +20,6 @@ app.all('*', function (req, res, next) {
 });
 
 app.get('/userList',(req,res,next)=>{
-    console.log("get => userList");
    // 用户数据
     const userList = data.userList
     res.send(userList)
