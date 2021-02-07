@@ -27,6 +27,15 @@
                 }
             }
         },
+        created(){
+            console.log("123");
+            const url = 'http://localhost:8002/wChat/user/list'
+            axios.get(url).then(data=>{
+                console.log(data,"取得数据");
+            }).catch(err=>{
+                console.log(err);
+            })
+        },
         methods: {
             submit() {
                 axios.post('http://localhost:8002/signin',{

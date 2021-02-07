@@ -6,6 +6,8 @@ const express = require("express")
 const app = express()
 const bodyparser = require('body-parser')
 
+const router = require("./api/index.js")
+
 var utils = require('./utils.js')
 
 app.use(bodyparser.json(),bodyparser.urlencoded({extended:true}))
@@ -19,6 +21,8 @@ app.all('*', function (req, res, next) {
     res.header("Content-Type", "application/json;charset=utf-8");
     next();
 });
+app.use("/wChat",router);
+
 // 用户列表
 app.get('/userList',(req,res,next)=>{
    // 用户数据
