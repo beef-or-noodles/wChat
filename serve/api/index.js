@@ -5,5 +5,7 @@
 const express = require("express");
 const router = express.Router()
 const user = require("./userApi.js")
+const message = require("./messageApi.js")
 router.use('/user',user)
+router.use('/message',message)
 module.exports = router
