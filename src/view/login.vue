@@ -1,13 +1,13 @@
 <template>
     <div class="login">
         <div>
-            <input v-model="form.userName" type="text" placeholder="用户名"/><br>
+            <input v-model="form.name" type="text" placeholder="用户名"/><br>
             <input v-model="form.password" type="text" placeholder="密码"/><br>
             <input v-model="form.headIcon" type="text" placeholder="头像Url"/><br>
             <input type="button" @click="submit" value="注册"/>
         </div>
         <div>
-            <input v-model="form.userName" type="text" placeholder="用户名"/><br>
+            <input v-model="form.name" type="text" placeholder="用户名"/><br>
             <input v-model="form.password" type="text" placeholder="密码"/><br>
             <input type="button" @click="login" value="登录"/>
         </div>
@@ -15,42 +15,32 @@
 </template>
 
 <script>
-    import axios from 'axios'
+    import {addUser,login} from "@api/allApi"
+    import router from "../router";
     export default {
         name: "login",
         data() {
             return {
                 form:{
-                    userName:'',
+                    name:'',
                     password:'',
-                    headIcon:''
+                    headIcon:'',
+                    phone:'15023376404'
                 }
             }
         },
-        created(){
-            console.log("123");
-            const url = 'http://localhost:8002/wChat/user/list'
-            axios.get(url).then(data=>{
-                console.log(data,"取得数据");
-            }).catch(err=>{
-                console.log(err);
-            })
-        },
+        created(){},
         methods: {
             submit() {
-                axios.post('http://localhost:8002/signin',{
-                    ...this.form
-                }).then(res=>{
-                    localStorage.setItem("userId",res.data.userId)
-                    this.$router.push("/")
+                addUser(this.form).then(res=>{
+                    console.log(res);
                 })
             },
             login(){
-                axios.post('http://localhost:8002/login',{
-                    ...this.form
-                }).then(res=>{
-                    localStorage.setItem("userId",res.data.userId)
-                    this.$router.push("/")
+                login(this.form).then(res=>{
+                    window.localStorage.setItem("info",JSON.stringify(res.data))
+                    window.localStorage.setItem("token",res.token)
+                    router.push({path:'/'})
                 })
             }
         },

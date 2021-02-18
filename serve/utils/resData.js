@@ -5,7 +5,7 @@
 function resData(option){
     let data = {
         code:200,
-        data:{},
+        data:null,
         describe:"操作成功",
         ...option
     }

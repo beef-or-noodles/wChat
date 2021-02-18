@@ -25,7 +25,7 @@ export default {
     },
     methods: {
         initWebSocket() {
-            let userId = localStorage.getItem("userId")
+            let userId = this.userId
             let url = `ws://localhost:8001?userId=${userId}`
             console.log("初始化",url);
             if ('WebSocket' in window) {

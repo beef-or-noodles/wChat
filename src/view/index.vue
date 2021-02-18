@@ -26,14 +26,14 @@
                     <div class="item"
                          v-for="item in userList"
                          @click="selectUser(item)"
-                         :class="[item.userId==userItem.userId?'active':'']">
+                         :class="[item.id==userItem.id?'active':'']">
                         <div class="dot" v-if="item.read"></div>
                         <div class="icon">
                             <img :src="item.headIcon" alt="">
                         </div>
                         <div class="mesBox">
                             <div class="nameBox">
-                                <span class="name">{{item.userName}}</span>
+                                <span class="name">{{item.name}}</span>
                                 <span class="time">{{item.time}}</span>
                             </div>
                             <div class="abs">{{item.text}}</div>
@@ -42,10 +42,10 @@
                 </div>
             </div>
             <div class="message">
-                <template v-if="userItem.userId">
+                <template v-if="userItem.id">
                     <div class="topBox">
                         <div class="title">
-                            {{userItem.userName}}
+                            {{userItem.name}}
                         </div>
                     </div>
                     <div class="mesList" ref="mesBox">
@@ -90,7 +90,7 @@
 
 <script>
     import scoket_mixin from '../mixins/scoket_mixin'
-    import axios from 'axios'
+    import {userList,messageList} from "@api/allApi"
     export default {
         mixins: [scoket_mixin],
         data() {
@@ -98,11 +98,17 @@
                 sendHeight: 160,
                 marginBottom: 150, // 滚动条距离底部
                 focusArea: false,
-                userId:localStorage.getItem("userId"),
+                userId:JSON.parse(localStorage.getItem("info")).id,
                 messageList: [],
-                myInfo:{},
+                myInfo:JSON.parse(localStorage.getItem("info")),
                 userList:[],
-                userItem:{}
+                userItem:{},
+                pagging:{
+                    pageNo:1,
+                    pageSize:10,
+                    marginBottom:0,
+                    total:0
+                }
             }
         },
         created() {
@@ -111,7 +117,6 @@
             }else {
                 this.$router.replace('/login')
             }
-
         },
         methods: {
             areaFocus(type) {
@@ -120,24 +125,56 @@
             selectUser(item){
                 item['read'] = false
                 this.userItem = item
-                this.getMessageList(item.userId)
+                this.pagging = {
+                    pageNo:1,
+                    pageSize:10,
+                    marginBottom:0,
+                    total:0
+                }
+                this.getMessageList(2)
                 setTimeout(()=>{
+                    this.listenerFunction()
                     let dom = this.$refs.textarea
                     dom.focus()
                 },10)
             },
+
+            listenerFunction(e) {
+                this.$refs.mesBox.addEventListener('scroll', this.handleScroll, true);
+            },
+            handleScroll(e){
+                let target = e.target
+                let scrollTop = target.scrollTop
+                let off = (this.pagging.pageNo-1) * this.pagging.pageSize
+                console.log(off);
+                if(scrollTop == 0 && off<this.pagging.total){
+                    this.pagging.marginBottom = target.scrollHeight - target.scrollTop - target.clientHeight
+                    this.pagging.pageNo = this.pagging.pageNo+=1
+                    this.getMessageList()
+                }
+            },
+
             // 获取消息列表
-            getMessageList(tagetId){
-                let roomId = `${this.userId},${tagetId}`
-                axios.get(`http://localhost:8002/historyList?roomId=${roomId}`).then(res=>{
-                    this.messageList = res.data
-                    this.goBottom(true)
+            getMessageList(type=1){
+                let params = {
+                    userId:this.userId,
+                    targetId:this.userItem.id,
+                    ...this.pagging
+                }
+                messageList(params).then(res=>{
+                    if(type==2){
+                        this.messageList = res.data.list
+                        this.goBottom(true)
+                    }else if(type==1){
+                        this.messageList.unshift(...res.data.list)
+                        this.goBottom(true)
+                    }
+                    this.pagging.total = res.data.total
                 })
             },
             getUserList(){
-                axios.get("http://localhost:8002/userList").then(res=>{
-                    this.myInfo = res.data.filter(ls=>ls.userId == this.userId)[0]
-                    this.userList = res.data.filter(ls=>ls.userId != this.userId)
+                userList().then(res=>{
+                    this.userList = res.data.list
                 })
             },
             // 到底部
@@ -146,13 +183,13 @@
                 setTimeout(() => {
                     let marginBottom = mesBox.scrollHeight - mesBox.scrollTop - mesBox.clientHeight
                     if (type || marginBottom < this.marginBottom) {
-                        mesBox.scrollTop = mesBox.scrollHeight;
+                        mesBox.scrollTop = mesBox.clientHeight - this.pagging.marginBottom;
                     }
-                }, 10)
+                }, 0)
             },
             onMessage(data) {
                 let _this = this
-                if (data.userId == this.userItem.userId){ // 当前打开的对话
+                if (data.userId == this.userItem.id){ // 当前打开的对话
                     addUserText(1)
                     this.messageList.push(data)
                     this.goBottom(false)
@@ -161,7 +198,7 @@
                 }
                 function addUserText(type){
                     _this.userList.forEach(ls=>{
-                        if(ls['userId'] == data.userId){
+                        if(ls['id'] == data.userId){
                             ls['time'] = data.time
                             ls['text'] = data.text
                             ls['read'] = type==2?true:false
@@ -177,8 +214,8 @@
                 let sendTime = new Date().format('yyyy-MM-dd hh:mm')
                 // type 1 文字普通消息  2 图片消息
                 let params = {
-                    targetId: this.userItem.userId,
-                    userId: this.myInfo.userId,
+                    targetId: this.userItem.id,
+                    userId: this.myInfo.id,
                     text,
                     headIcon:this.myInfo.headIcon,
                     sendTime,

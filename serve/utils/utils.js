@@ -7,6 +7,9 @@ let fs = require('fs');
 //系统路径模块
 let path = require('path');
 
+/*token生成验证*/
+let jwt = require("jsonwebtoken")
+
 function readJson(path){
     let rawdata = fs.readFileSync(path);
     let list = JSON.parse(rawdata.toString())
@@ -26,7 +29,31 @@ function saveJson(jsonData, fileName) {
         }
     });
 }
+const Token = {
+    // 生成token
+    encrypt:function(data,time="1d"){
+       return jwt.sign({data}, 'token', {expiresIn:time})
+    },
+    // 解密token数据
+    decrypt:function(token){
+        try {
+            let data = jwt.verify(token, 'token');
+            return {
+                token:true,
+                data:data.data
+            };
+        } catch (e) {
+            return {
+                token:false,
+                data:e
+            }
+        }
+    }
+}
+// 验证token
+
 module.exports = {
     readJson,
-    saveJson
+    saveJson,
+    Token
 }

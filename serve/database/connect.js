@@ -19,7 +19,7 @@ function query(sql,params=[]){
             if(err){
                 reject(err)
             }else{
-                conn.query("select * from user",(err2,res)=>{
+                conn.query(sql,params,(err2,res)=>{
                     if(err2){
                         reject(err2)
                     }else{
