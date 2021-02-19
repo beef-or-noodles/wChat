@@ -26,7 +26,9 @@
                     <div class="item"
                          v-for="item in userList"
                          @click="selectUser(item)"
-                         :class="[item.id==userItem.id?'active':'']">
+                         :class="[item.id==userItem.id?'active':'']"
+                         :key="item.id"
+                         >
                         <div class="dot" v-if="item.read"></div>
                         <div class="icon">
                             <img :src="item.headIcon" alt="">
@@ -49,6 +51,7 @@
                         </div>
                     </div>
                     <div class="mesList" ref="mesBox">
+                        <div class="loading" v-if="loding">加载中。。。</div>
                         <template v-for="item in messageList">
 <!--                            <div class="time">-->
 <!--                                <span>{{item.sendTime}}</span>-->
@@ -73,6 +76,10 @@
                         <div class="mestool" :style="{background: !focusArea?'#f5f5f5':'white'}">
                             <div class="item">
                                 <i class="iconfont iconbiaoqing"></i>
+                            </div>
+                            
+                            <div class="item">
+                                <i class="iconfont icontupian1"></i>
                             </div>
                         </div>
                         <div @keyup.enter.native="send" ref="textarea" @focus="areaFocus(true)" @blur="areaFocus(false)"
@@ -105,10 +112,11 @@
                 userItem:{},
                 pagging:{
                     pageNo:1,
-                    pageSize:10,
+                    pageSize:15,
                     marginBottom:0,
                     total:0
-                }
+                },
+                loding:true,
             }
         },
         created() {
@@ -123,11 +131,12 @@
                 this.focusArea = type
             },
             selectUser(item){
+                if(item.id == this.userItem.id)return
                 item['read'] = false
                 this.userItem = item
                 this.pagging = {
                     pageNo:1,
-                    pageSize:10,
+                    pageSize:15,
                     marginBottom:0,
                     total:0
                 }
@@ -145,12 +154,15 @@
             handleScroll(e){
                 let target = e.target
                 let scrollTop = target.scrollTop
-                let off = (this.pagging.pageNo-1) * this.pagging.pageSize
-                console.log(off);
+                let off = (this.pagging.pageNo) * this.pagging.pageSize
+                this.pagging.marginBottom = target.scrollHeight - target.scrollTop - target.clientHeight
                 if(scrollTop == 0 && off<this.pagging.total){
-                    this.pagging.marginBottom = target.scrollHeight - target.scrollTop - target.clientHeight
+                    this.loding = true
                     this.pagging.pageNo = this.pagging.pageNo+=1
-                    this.getMessageList()
+                    setTimeout(()=>{
+                        this.getMessageList()
+                    },500)
+                    
                 }
             },
 
@@ -170,6 +182,7 @@
                         this.goBottom(true)
                     }
                     this.pagging.total = res.data.total
+                    this.loding = false
                 })
             },
             getUserList(){
@@ -183,13 +196,14 @@
                 setTimeout(() => {
                     let marginBottom = mesBox.scrollHeight - mesBox.scrollTop - mesBox.clientHeight
                     if (type || marginBottom < this.marginBottom) {
-                        mesBox.scrollTop = mesBox.clientHeight - this.pagging.marginBottom;
+                         mesBox.scrollTop = mesBox.scrollHeight - mesBox.clientHeight - this.pagging.marginBottom;
                     }
-                }, 0)
+                }, 10)
             },
             onMessage(data) {
                 let _this = this
                 if (data.userId == this.userItem.id){ // 当前打开的对话
+                    this.pagging.marginBottom = 0
                     addUserText(1)
                     this.messageList.push(data)
                     this.goBottom(false)
@@ -534,7 +548,7 @@
 
                             .img {
                                 img {
-                                    max-width: 350px;
+                                    max-width: 300px;
                                 }
                             }
                         }
