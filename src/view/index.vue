@@ -8,9 +8,12 @@
                 <div class="mesIcon active">
                     <i class="iconfont iconxiaoxi1"></i>
                 </div>
-                <div class="menuIcon mesIcon">
-                    <i class="iconfont iconcaidan"></i>
+                <div class="menuIcon mesIcon" @click="exit" title="退出">
+                    <i class="iconfont icontuichu"></i>
                 </div>
+<!--                <div class="menuIcon mesIcon">-->
+<!--                    <i class="iconfont iconcaidan"></i>-->
+<!--                </div>-->
             </div>
             <div class="user">
                 <div class="topBox">
@@ -105,7 +108,7 @@
                 sendHeight: 160,
                 marginBottom: 150, // 滚动条距离底部
                 focusArea: false,
-                userId:JSON.parse(localStorage.getItem("info")).id,
+                userId:"",
                 messageList: [],
                 myInfo:JSON.parse(localStorage.getItem("info")),
                 userList:[],
@@ -120,15 +123,19 @@
             }
         },
         created() {
-            if(this.userId){
+            if(localStorage.getItem("info")){
+                this.userId = JSON.parse(localStorage.getItem("info")).id
                 this.getUserList()
-            }else {
+            }else{
                 this.$router.replace('/login')
             }
         },
         methods: {
             areaFocus(type) {
                 this.focusArea = type
+            },
+            exit(){
+                this.$router.replace('/login')
             },
             selectUser(item){
                 if(item.id == this.userItem.id)return
@@ -140,10 +147,12 @@
                     marginBottom:0,
                     total:0
                 }
+                this.messageList = []
                 this.getMessageList(2)
                 setTimeout(()=>{
                     this.listenerFunction()
                     let dom = this.$refs.textarea
+                    dom.innerText = ""
                     dom.focus()
                 },10)
             },

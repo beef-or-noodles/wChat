@@ -15,7 +15,8 @@ export default {
             cleartimeout: null // 连接失败定时器
         }
     },
-    created() {
+    mounted(){
+        console.log("1");
         this.initWebSocket()
     },
     unmounted() {
@@ -26,10 +27,15 @@ export default {
     methods: {
         initWebSocket() {
             let userId = this.userId
+            console.log("2");
+            if (!userId) {
+                console.log("没获取userID");
+                return
+            }
             let url = `ws://localhost:8001?userId=${userId}`
             console.log("初始化",url);
             if ('WebSocket' in window) {
-
+                console.log("3");
             } else {
                 return
             }
