@@ -4,6 +4,6 @@
  */
 const config = {
     // 不需要登录的接口
-    loginApi:['/user/login']
+    loginApi:['/user/login',"/user/add"]
 }
 module.exports = config

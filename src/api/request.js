@@ -24,8 +24,10 @@ request.interceptors.request.use(config=>{
 request.interceptors.response.use(response=>{
     if(response.data.code == "3000"){
         router.replace('/login')
+    }else if(response.data.code != 200){
+        return Promise.reject(response.data)
     }else{
-        return response.data
+        return Promise.resolve(response.data)
     }
 
 })
