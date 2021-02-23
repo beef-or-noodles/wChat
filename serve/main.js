@@ -27,6 +27,6 @@ app.use((error, req, res, next) => {
         res.status(500).send(resData({code:500,describe:'服务器错误'}))
     }
 });
-app.listen(8002,()=>{
-    console.log("http://localhost:8002");
+app.listen(8002,"0.0.0.0",()=>{
+    console.log("http://0.0.0.0:8002");
 })
