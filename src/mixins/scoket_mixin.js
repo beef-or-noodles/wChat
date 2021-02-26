@@ -30,7 +30,7 @@ export default {
                 console.log("没获取userID");
                 return
             }
-            let url = `ws://localhost:8001?userId=${userId}`
+            let url = `ws://39.99.193.63:9001?userId=${userId}`
             console.log("初始化",url);
             if ('WebSocket' in window) {
             } else {

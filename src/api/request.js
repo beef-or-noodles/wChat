@@ -4,8 +4,8 @@
  */
 import axios from "axios"
 import router from "../router/index"
-const request = axios.create({
-    baseURL:"http://localhost:8002", // 本地环境
+var request = axios.create({
+    baseURL:"http://39.99.193.63:9002", // 本地环境
     method:'post',
     timeout:5000, // 请求超时时间
     responseType:'json'
@@ -19,6 +19,8 @@ request.interceptors.request.use(config=>{
         console.log(e);
     }
     return config
+}, error=>{
+    return Promise.reject(error);
 })
 // 响应拦截器
 request.interceptors.response.use(response=>{
