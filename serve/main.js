@@ -1,9 +1,18 @@
+/*
+ * @Author: your name
+ * @Date: 2021-02-26 14:37:54
+ * @LastEditTime: 2021-02-26 18:11:42
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \undefinedd:\xshellplus\Xftp\Temporary\main [2].js
+ */
 /**
  * Created by admin on 2021/2/3.
  * 模拟服务接口
  */
 const express = require("express")
-require('express-async-errors');
+// require('express-async-errors');
+let http = require("http");
 const app = express()
 const bodyparser = require('body-parser')
 
@@ -27,6 +36,7 @@ app.use((error, req, res, next) => {
         res.status(500).send(resData({code:500,describe:'服务器错误'}))
     }
 });
-app.listen(8002,"0.0.0.0",()=>{
-    console.log("http://0.0.0.0:8002");
+var server  = http.createServer(app);
+server.listen(9002,()=>{
+    console.log("http://0.0.0.0:9002");
 })
