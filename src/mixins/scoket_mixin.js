@@ -15,9 +15,6 @@ export default {
             cleartimeout: null // 连接失败定时器
         }
     },
-    mounted(){
-        this.initWebSocket()
-    },
     unmounted() {
         try{
             this.exit()

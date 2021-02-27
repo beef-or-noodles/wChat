@@ -10,7 +10,7 @@ const resData = require("../utils/resData.js")
 router.get("/list",function (req,res) {
     let {userId,targetId,pageNo,pageSize} = req.query
     let start = (pageNo-1) * pageSize
-    let sql = "select m.*,u.headIcon,u.name from message m inner join `user` u on m.userId = u.id where m.userId="+userId+" and m.targetId="+targetId+" or m.userId="+targetId+" and m.targetId="+userId+" ORDER BY id desc LIMIT "+start+","+pageSize+";"
+    let sql = "select m.*,u.image,u.userName from message m inner join `userinfo` u on m.userId = u.id where m.userId="+userId+" and m.targetId="+targetId+" or m.userId="+targetId+" and m.targetId="+userId+" ORDER BY id desc LIMIT "+start+","+pageSize+";"
     database.query("select count(1) from message m where m.userId="+userId+" and m.targetId="+targetId+" or m.userId="+targetId+";").then(total=>{
         database.query(sql,[userId,targetId,targetId,userId]).then(data=>{
             res.send(resData({data:{list:data.reverse(),pageNo,pageSize,total:total[0]["count(1)"]}}))

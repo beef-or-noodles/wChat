@@ -9,6 +9,9 @@ export function addUser(params){
 export function login(params){
     return request.post("/wChat/user/login",{...params})
 }
+export function userInfo(token) {
+    return request.post("http://39.99.193.63:8889/api/userInfo",{token})
+}
 export function userList(){
     return request.get("/wChat/user/list")
 }

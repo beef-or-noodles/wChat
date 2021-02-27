@@ -2,8 +2,8 @@
     <div class="content">
         <div class="chatBox">
             <div class="tool">
-                <div class="headImg">
-                    <img :src="myInfo.headIcon" alt="">
+                <div class="headImg" v-if="myInfo.image">
+                    <img :src="myInfo.image" alt="">
                 </div>
                 <div class="mesIcon active">
                     <i class="iconfont iconxiaoxi1"></i>
@@ -34,11 +34,11 @@
                          >
                         <div class="dot" v-if="item.read"></div>
                         <div class="icon">
-                            <img :src="item.headIcon" alt="">
+                            <img :src="item.image" alt="">
                         </div>
                         <div class="mesBox">
                             <div class="nameBox">
-                                <span class="name">{{item.name}}</span>
+                                <span class="name">{{item.userName}}</span>
                                 <span class="time">{{item.time}}</span>
                             </div>
                             <div class="abs">{{item.text}}</div>
@@ -50,7 +50,7 @@
                 <template v-if="userItem.id">
                     <div class="topBox">
                         <div class="title">
-                            {{userItem.name}}
+                            {{userItem.userName}}
                         </div>
                     </div>
                     <div class="mesList" ref="mesBox">
@@ -61,7 +61,7 @@
 <!--                            </div>-->
                             <div class="item" :class="[userId==item.userId?'right':'left']">
                                 <div class="mesicon">
-                                    <img :src="item.headIcon" alt="">
+                                    <img :src="item.image" alt="">
                                 </div>
                                 <div class="text" v-if="item.type == 1">
                                     {{item.text}}
@@ -100,7 +100,7 @@
 
 <script>
     import scoket_mixin from '../mixins/scoket_mixin'
-    import {userList,messageList} from "@api/allApi"
+    import {userList,messageList,userInfo} from "@api/allApi"
     export default {
         mixins: [scoket_mixin],
         data() {
@@ -110,7 +110,9 @@
                 focusArea: false,
                 userId:"",
                 messageList: [],
-                myInfo:JSON.parse(localStorage.getItem("info")),
+                myInfo:{
+
+                },
                 userList:[],
                 userItem:{},
                 pagging:{
@@ -123,11 +125,27 @@
             }
         },
         created() {
-            if(localStorage.getItem("info")){
-                this.userId = JSON.parse(localStorage.getItem("info")).id
+            let token = localStorage.getItem("token")
+            // 拿到用户信息
+            let qtoken = rgetUrlParam("token")
+            if(qtoken && !token){
+                localStorage.setItem("token",qtoken)
+                token = qtoken
+            }
+            userInfo(token).then(res=>{
+                localStorage.setItem("userInfo",JSON.stringify(res.data))
+                this.userId = res.data.id
+                this.myInfo = res.data
                 this.getUserList()
-            }else{
-                this.$router.replace('/login')
+                this.initWebSocket()
+            })
+            function rgetUrlParam(name) {
+                const reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
+                const r = window.location.search.substr(1).match(reg)
+                if (r != null) {
+                    return unescape(r[2])
+                }
+                return null
             }
         },
         methods: {
@@ -135,7 +153,7 @@
                 this.focusArea = type
             },
             exit(){
-                this.$router.replace('/login')
+               // this.$router.replace('/login')
             },
             selectUser(item){
                 if(item.id == this.userItem.id)return
@@ -195,6 +213,7 @@
                 })
             },
             getUserList(){
+                // 拿到用户列表
                 userList().then(res=>{
                     this.userList = res.data.list
                 })
@@ -240,7 +259,7 @@
                     targetId: this.userItem.id,
                     userId: this.myInfo.id,
                     text,
-                    headIcon:this.myInfo.headIcon,
+                    image:this.myInfo.image,
                     sendTime,
                     type: 1
                 }
