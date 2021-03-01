@@ -64,7 +64,7 @@
                                     <img :src="item.image" alt="">
                                 </div>
                                 <div class="text" v-if="item.type == 1">
-                                    {{item.text}}
+                                    <div v-html="item.text"></div>
                                 </div>
                                 <div class="fileBox" v-else-if="item.type==2">
                                     <div class="img">
@@ -78,14 +78,21 @@
                     <div class="sendBox" :style="{height:sendHeight+'px'}">
                         <div class="mestool" :style="{background: !focusArea?'#f5f5f5':'white'}">
                             <div class="item">
-                                <i class="iconfont iconbiaoqing"></i>
+                                <i @click="iconBox=!iconBox" class="iconfont iconbiaoqing"></i>
+                                <div class="iconBox" v-if="iconBox">
+                                    <div class="iconList">
+                                        <template v-for="i in 15">
+                                            <img @click="addIcon(`http://39.99.193.63:8889/gif/${i<10?'0'+i:i}.gif`)" :src="`http://39.99.193.63:8889/gif/${i<10?'0'+i:i}.gif`" alt="">
+                                        </template>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div class="item">
                                 <i class="iconfont icontupian1"></i>
                             </div>
                         </div>
-                        <div @keyup.enter.native="send" ref="textarea" @focus="areaFocus(true)" @blur="areaFocus(false)"
+                        <div @keyup.enter.native="send" id="textarea" ref="textarea" @focus="areaFocus(true)" @blur="areaFocus(false)"
                              contenteditable="true" class="textarea"></div>
                         <div class="sendBtn" :style="{background: !focusArea?'#f5f5f5':'white'}">
                             <button class="btn" @click="send">发送(S)</button>
@@ -105,6 +112,7 @@
         mixins: [scoket_mixin],
         data() {
             return {
+                iconBox:false,
                 sendHeight: 160,
                 marginBottom: 150, // 滚动条距离底部
                 focusArea: false,
@@ -154,6 +162,12 @@
             },
             exit(){
                // this.$router.replace('/login')
+            },
+            addIcon(filePath){
+                let dom = this.$refs.textarea
+                dom.focus()
+                document.execCommand('insertImage', false, filePath);
+                this.iconBox = false
             },
             selectUser(item){
                 if(item.id == this.userItem.id)return
@@ -252,7 +266,7 @@
             send() {
                 let dom = this.$refs.textarea
                 let mesBox = this.$refs.mesBox
-                let text = dom.innerText
+                let text = dom.innerHTML
                 let sendTime = new Date().format('yyyy-MM-dd hh:mm')
                 // type 1 文字普通消息  2 图片消息
                 let params = {
@@ -678,7 +692,41 @@
                             align-items: center;
                             justify-content: center;
                             color: #818181;
+                            position: relative;
+                            .iconBox{
+                                position: absolute;
+                                background-color: white;
+                                bottom: 50px;
+                                left: 3px;
+                                padding: 10px;
+                                border-radius: 6px;
+                                width: 220px;
+                                .iconList{
+                                    position: relative;
+                                    display: flex;
+                                    justify-content: space-between;
+                                    flex-wrap: wrap;
+                                    &>img{
+                                        width: 30px;
+                                        height: 30px;
+                                        margin: 5px;
+                                    }
+                                    &>img:hover{
+                                        background-color: #eceae8;
+                                    }
+                                    &::after {
+                                        content: "";
+                                        position: absolute;
+                                        width: 10px;
+                                        height: 10px;
+                                        bottom: -15px;
+                                        left: 0px;
+                                        background-color: white;
+                                        transform: rotate(45deg);
+                                    }
+                                }
 
+                            }
                             i {
                                 font-size: 20px;
                             }
