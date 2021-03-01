@@ -170,6 +170,7 @@
                 this.iconBox = false
             },
             selectUser(item){
+                this.iconBox=false
                 if(item.id == this.userItem.id)return
                 item['read'] = false
                 this.userItem = item
