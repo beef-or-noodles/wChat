@@ -46,8 +46,8 @@
                     </div>
                 </div>
             </div>
-            <div class="message">
-                <template v-if="userItem.id">
+            <div class="message" >
+                <div class="message" :style="{opacity:userItem.id?1:0,'z-index':userItem.id?99:-1}">
                     <div class="topBox">
                         <div class="title">
                             {{userItem.userName}}
@@ -82,23 +82,24 @@
                                 <div class="iconBox" v-if="iconBox">
                                     <div class="iconList">
                                         <template v-for="i in 15">
-                                            <img @click="addIcon(`http://39.99.193.63:8889/gif/${i<10?'0'+i:i}.gif`)" :src="`http://39.99.193.63:8889/gif/${i<10?'0'+i:i}.gif`" alt="">
+                                            <img @click="addIcon(`http://39.99.193.63:8889/gif/${i<10?'0'+i:i}.gif`,1)" :src="`http://39.99.193.63:8889/gif/${i<10?'0'+i:i}.gif`" alt="">
                                         </template>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="item">
+                                <input type="file" accept="image/*" id="imgFile" class="imgFile">
                                 <i class="iconfont icontupian1"></i>
                             </div>
                         </div>
-                        <div @keyup.enter.native="send" id="textarea" ref="textarea" @focus="areaFocus(true)" @blur="areaFocus(false)"
+                        <div v-on:keydown="send($event)" id="textarea" ref="textarea" @focus="areaFocus(true)" @blur="areaFocus(false)"
                              contenteditable="true" class="textarea"></div>
                         <div class="sendBtn" :style="{background: !focusArea?'#f5f5f5':'white'}">
-                            <button class="btn" @click="send">发送(S)</button>
+                            <button class="btn" @click="send($event)">发送(S)</button>
                         </div>
                     </div>
-                </template>
+                </div>
             </div>
         </div>
         <div class="bg"></div>
@@ -108,12 +109,13 @@
 <script>
     import scoket_mixin from '../mixins/scoket_mixin'
     import {userList,messageList,userInfo} from "@api/allApi"
+    import uploadImg from "@/api/request"
     export default {
         mixins: [scoket_mixin],
         data() {
             return {
                 iconBox:false,
-                sendHeight: 160,
+                sendHeight: 180,
                 marginBottom: 150, // 滚动条距离底部
                 focusArea: false,
                 userId:"",
@@ -122,6 +124,7 @@
 
                 },
                 userList:[],
+                fileList:[],
                 userItem:{},
                 pagging:{
                     pageNo:1,
@@ -163,6 +166,20 @@
                   this.iconBox = false
               }
           })
+            let _this = this
+            try {
+                document.getElementById("imgFile").onchange = function (e){
+                    let file = e.target.files[0]
+                    let filePath = URL.createObjectURL(file);
+                    this.fileList.push({
+                        url:filePath,
+                        file:file
+                    })
+                    _this.addIcon(filePath,2)
+                }
+            }catch (e) {
+                console.log(e);
+            }
         },
         methods: {
             areaFocus(type) {
@@ -171,10 +188,15 @@
             exit(){
                // this.$router.replace('/login')
             },
-            addIcon(filePath){
+            /* type： 1表情包 2 图片 */
+            addIcon(filePath,type=1){
                 let dom = this.$refs.textarea
+                var IMG = document.createElement("img");
+                IMG.setAttribute("src",filePath)
+                IMG.setAttribute("type",type)
+                IMG.setAttribute("style","max-width:140px;margin-right:5px")
+                dom.appendChild(IMG)
                 dom.focus()
-                document.execCommand('insertImage', false, filePath);
                 this.iconBox = false
             },
             selectUser(item){
@@ -271,28 +293,71 @@
                 }
 
             },
-            send() {
-                let dom = this.$refs.textarea
-                let mesBox = this.$refs.mesBox
-                let text = dom.innerHTML
-                let sendTime = new Date().format('yyyy-MM-dd hh:mm')
-                // type 1 文字普通消息  2 图片消息
-                let params = {
-                    targetId: this.userItem.id,
-                    userId: this.myInfo.id,
-                    text,
-                    image:this.myInfo.image,
-                    sendTime,
-                    type: 1
-                }
-                this.sendMessage(params)
-                this.messageList.push(params)
-                dom.innerText = ""
-                dom.focus()
-                setTimeout(()=>{
-                    mesBox.scrollTop = mesBox.scrollHeight;
-                },10)
 
+            // 转换成dom节点
+            parseDom(arg) {
+                var objE = document.createElement("div");
+                objE.innerHTML = arg;
+                return objE.childNodes;
+
+            },
+
+            send(event) {
+                let _this = this
+                if(event.keyCode == 13 || event.type=="click"){
+                    //阻止键盘的按键起作用
+                    if(event.keyCode == 13){
+                        event.preventDefault();
+                    }
+                    let dom = this.$refs.textarea
+                    let mesBox = this.$refs.mesBox
+                    let text = dom.innerHTML
+                    let textDom = this.parseDom(text)
+                    textDom.forEach(item=>{
+                        let message = ""
+                        let type = 1
+                        let localName = item.localName
+                        if(localName == "img"){
+                            message = item.src
+                            type = 2
+                        }else{
+                            message = item.data
+                            type = 1
+                        }
+                        if(type==2){
+                            let arr = this.fileList.filter(message)
+                            if(arr.length){
+                                console.log(arr[0].file);
+                                // uploadImg(arr[0].file,'message_pic_name').then(data=>{
+                                //     console.log(data);
+                                // })
+                            }
+
+                        }
+                        send(message,type)
+                    })
+                    let sendTime = new Date().format('yyyy-MM-dd hh:mm')
+                    // 聊天内容拆分
+                    function send(message,type){
+                        if(!text) return
+                        let params = {
+                            targetId: _this.userItem.id,
+                            userId: _this.myInfo.id,
+                            text: message,
+                            image:_this.myInfo.image,
+                            sendTime,
+                            type // type 1 文字普通消息  2 图片消息
+                        }
+                        //this.sendMessage(params)
+                        _this.messageList.push(params)
+                        dom.innerText = ""
+                        dom.focus()
+                        setTimeout(()=>{
+                            mesBox.scrollTop = mesBox.scrollHeight;
+                        },0)
+                    }
+
+                }
             }
         },
     }
@@ -302,6 +367,7 @@
     ::-webkit-scrollbar {
         /*滚动条整体样式*/
         width: 8px; /*高宽分别对应横竖滚动条的尺寸*/
+        height: 8px;
     }
 
     ::-webkit-scrollbar-thumb {
@@ -532,7 +598,7 @@
                 }
 
                 .mesList {
-                    flex: 1;
+                    height: 350px;
                     overflow: auto;
                     padding: 0 25px;
 
@@ -598,7 +664,7 @@
 
                             .img {
                                 img {
-                                    max-width: 300px;
+                                    max-width: 350px;
                                 }
                             }
                         }
@@ -606,7 +672,6 @@
                         .mesicon {
                             width: 40px;
                             height: 40px;
-
                             img {
                                 width: 100%;
                                 height: 100%;
@@ -701,6 +766,15 @@
                             justify-content: center;
                             color: #818181;
                             position: relative;
+                            .imgFile{
+                                position: absolute;
+                                width: 25px;
+                                height: 20px;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%,-50%);
+                                opacity: 0;
+                            }
                             .iconBox{
                                 position: absolute;
                                 background-color: white;

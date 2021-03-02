@@ -24,11 +24,9 @@ export default {
         initWebSocket() {
             let userId = this.userId
             if (!userId) {
-                console.log("没获取userID");
                 return
             }
             let url = `ws://39.99.193.63:9001?userId=${userId}`
-            console.log("初始化",url);
             if ('WebSocket' in window) {
             } else {
                 return

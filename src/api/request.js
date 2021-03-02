@@ -34,4 +34,31 @@ request.interceptors.response.use(response=>{
     }
 
 })
+
+// 上传图片
+export function uploadImg(data,dirname="") {
+    let param = new FormData(); // 创建form对象
+    param.append("file", data); //) // 通过append向form对象添加数据
+    return new Promise((resolve, redect) => {
+        axios({
+            method: 'post',
+            url: "http://39.99.193.63:8889/api/upload",
+            data: param,
+            headers: {
+                "Content-Type": "multipart/form-data",
+                "dirname":dirname
+            },
+        }).then(response => {
+            if (response.data.code == 200) {
+                resolve(response.data.data);
+            } else {
+                reject("上传失败")
+            }
+        }, err => {
+            reject(err)
+        });
+    })
+
+}
+
 export default request;
