@@ -156,6 +156,14 @@
                 return null
             }
         },
+        mounted(){
+          document.addEventListener("click",(e)=>{
+              let className = e.target.className
+              if(className != "iconBox" && className!= "iconfont iconbiaoqing"){
+                  this.iconBox = false
+              }
+          })
+        },
         methods: {
             areaFocus(type) {
                 this.focusArea = type
@@ -170,7 +178,6 @@
                 this.iconBox = false
             },
             selectUser(item){
-                this.iconBox=false
                 if(item.id == this.userItem.id)return
                 item['read'] = false
                 this.userItem = item
