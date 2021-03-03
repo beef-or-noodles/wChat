@@ -26,9 +26,11 @@ var server = ws.createServer(function (conn) {
                     })
                 }
             })
-            if(targetOff){
-                saveMessage(message,()=>{})
-            }
+            setTimeout(() => {
+                if(targetOff){
+                    saveMessage(message,()=>{})
+                }
+            }, 10);
         }
     })
     conn.on("close", function (code, reason) {
