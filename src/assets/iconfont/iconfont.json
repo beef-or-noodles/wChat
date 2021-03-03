@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "4016507",
+      "name": "文件",
+      "font_class": "wenjian",
+      "unicode": "e6ac",
+      "unicode_decimal": 59052
+    },
+    {
+      "icon_id": "7325974",
+      "name": "文件夹_",
+      "font_class": "wenjianjia_",
+      "unicode": "e689",
+      "unicode_decimal": 59017
+    },
+    {
       "icon_id": "7233046",
       "name": "退出",
       "font_class": "tuichu",

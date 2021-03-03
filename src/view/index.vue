@@ -3,7 +3,7 @@
         <div class="chatBox">
             <div class="tool">
                 <div class="headImg" v-if="myInfo.image">
-                    <img :src="myInfo.image" alt="">
+                    <img :src="myInfo.image" alt="" :title="myInfo.userName">
                 </div>
                 <div class="mesIcon active">
                     <i class="iconfont iconxiaoxi1"></i>
@@ -68,8 +68,11 @@
                                 </div>
                                 <div class="fileBox" v-else-if="item.type==2">
                                     <div class="img">
-                                        <img :src="item.text" alt="">
+                                        <img :src="item.text" alt="文件丢失">
                                     </div>
+                                </div>
+                                <div class="videoBox" v-else-if="item.type==3">
+                                    <video :src="item.text" controls></video>
                                 </div>
                             </div>
                         </template>
@@ -90,7 +93,7 @@
                             
                             <div class="item">
                                 <input type="file" accept="image/*" id="imgFile" class="imgFile">
-                                <i class="iconfont icontupian1"></i>
+                                <i class="iconfont iconwenjianjia_"></i>
                             </div>
                         </div>
                         <div v-on:keydown="send($event)" id="textarea" ref="textarea" @focus="areaFocus(true)" @blur="areaFocus(false)"
@@ -109,7 +112,7 @@
 <script>
     import scoket_mixin from '../mixins/scoket_mixin'
     import {userList,messageList,userInfo} from "@api/allApi"
-    import uploadImg from "@/api/request"
+    import {uploadImg} from "@/api/request"
     export default {
         mixins: [scoket_mixin],
         data() {
@@ -171,11 +174,23 @@
                 document.getElementById("imgFile").onchange = function (e){
                     let file = e.target.files[0]
                     let filePath = URL.createObjectURL(file);
-                    this.fileList.push({
+                    let fileType = file.type.split("/")[0]
+                    let type = 1
+                    if(fileType == "image"){
+                        type = 2
+                    }else if(fileType == "video"){
+                        type = 3
+                    }else {
+                        type = 4
+                    }
+                    _this.fileList.push({
                         url:filePath,
-                        file:file
+                        file:file,
+                        type:type,//文件格式  2 图片 3 视频  4 其他
                     })
-                    _this.addIcon(filePath,2)
+                    uploadImg(file,'message_pic_name').then(data=>{
+                        _this.putMessage(data.path,type)
+                    })
                 }
             }catch (e) {
                 console.log(e);
@@ -188,14 +203,14 @@
             exit(){
                // this.$router.replace('/login')
             },
-            /* type： 1表情包 2 图片 */
-            addIcon(filePath,type=1){
+            /* type：1 表情包*/
+            addIcon(filePath){
                 let dom = this.$refs.textarea
-                var IMG = document.createElement("img");
-                IMG.setAttribute("src",filePath)
-                IMG.setAttribute("type",type)
-                IMG.setAttribute("style","max-width:140px;margin-right:5px")
-                dom.appendChild(IMG)
+                var tagDiv = null
+                    tagDiv = document.createElement("img");
+                    tagDiv.setAttribute("src",filePath)
+                    tagDiv.setAttribute("style","max-width:140px;margin-right:5px")
+                dom.appendChild(tagDiv)
                 dom.focus()
                 this.iconBox = false
             },
@@ -310,54 +325,32 @@
                         event.preventDefault();
                     }
                     let dom = this.$refs.textarea
-                    let mesBox = this.$refs.mesBox
-                    let text = dom.innerHTML
-                    let textDom = this.parseDom(text)
-                    textDom.forEach(item=>{
-                        let message = ""
-                        let type = 1
-                        let localName = item.localName
-                        if(localName == "img"){
-                            message = item.src
-                            type = 2
-                        }else{
-                            message = item.data
-                            type = 1
-                        }
-                        if(type==2){
-                            let arr = this.fileList.filter(message)
-                            if(arr.length){
-                                console.log(arr[0].file);
-                                // uploadImg(arr[0].file,'message_pic_name').then(data=>{
-                                //     console.log(data);
-                                // })
-                            }
-
-                        }
-                        send(message,type)
-                    })
-                    let sendTime = new Date().format('yyyy-MM-dd hh:mm')
+                    let html = dom.innerHTML
                     // 聊天内容拆分
-                    function send(message,type){
-                        if(!text) return
-                        let params = {
-                            targetId: _this.userItem.id,
-                            userId: _this.myInfo.id,
-                            text: message,
-                            image:_this.myInfo.image,
-                            sendTime,
-                            type // type 1 文字普通消息  2 图片消息
-                        }
-                        //this.sendMessage(params)
-                        _this.messageList.push(params)
-                        dom.innerText = ""
-                        dom.focus()
-                        setTimeout(()=>{
-                            mesBox.scrollTop = mesBox.scrollHeight;
-                        },0)
-                    }
-
+                    _this.putMessage(html,1)
                 }
+            },
+            putMessage(message,type){
+                if(!message) return
+                let _this = this
+                let dom = this.$refs.textarea
+                let mesBox = this.$refs.mesBox
+                let sendTime = ''
+                let params = {
+                    targetId: _this.userItem.id,
+                    userId: _this.myInfo.id,
+                    text: message,
+                    image:_this.myInfo.image,
+                    sendTime,
+                    type // type 1 文字普通消息  2 图片消息
+                }
+                _this.sendMessage(params)
+                _this.messageList.push(params)
+                dom.innerText = ""
+                dom.focus()
+                setTimeout(()=>{
+                    mesBox.scrollTop = mesBox.scrollHeight;
+                },0)
             }
         },
     }
@@ -664,7 +657,7 @@
 
                             .img {
                                 img {
-                                    max-width: 350px;
+                                    max-width: 250px;
                                 }
                             }
                         }

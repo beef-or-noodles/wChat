@@ -3,7 +3,6 @@
  * axios 封装
  */
 import axios from "axios"
-import router from "../router/index"
 var request = axios.create({
     baseURL:"http://39.99.193.63:9002", // 本地环境
     method:'post',
