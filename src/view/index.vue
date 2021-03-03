@@ -61,7 +61,7 @@
 <!--                            </div>-->
                             <div class="item" :class="[userId==item.userId?'right':'left']">
                                 <div class="mesicon">
-                                    <img :src="item.image" alt="">
+                                    <img :src="item.image" alt="" :title="item.userName">
                                 </div>
                                 <div class="text" v-if="item.type == 1">
                                     <div v-html="item.text"></div>
@@ -92,7 +92,7 @@
                             </div>
                             
                             <div class="item">
-                                <input type="file" accept="image/*" id="imgFile" class="imgFile">
+                                <input type="file" accept="image/*,video/*" id="imgFile" class="imgFile">
                                 <i class="iconfont iconwenjianjia_"></i>
                             </div>
                         </div>
@@ -654,14 +654,16 @@
 
                         .fileBox {
                             margin-left: 10px;
-
                             .img {
+                                min-height: 100px;
                                 img {
                                     max-width: 250px;
                                 }
                             }
                         }
-
+                        .videoBox{
+                            margin: 0 10px;
+                        }
                         .mesicon {
                             width: 40px;
                             height: 40px;
