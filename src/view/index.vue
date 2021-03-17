@@ -139,15 +139,15 @@
             }
         },
         created() {
-            let token = localStorage.getItem("token")
+            let token = sessionStorage.getItem("token")
             // 拿到用户信息
             let qtoken = rgetUrlParam("token")
             if(qtoken && !token){
-                localStorage.setItem("token",qtoken)
+                sessionStorage.setItem("token",qtoken)
                 token = qtoken
             }
             userInfo(token).then(res=>{
-                localStorage.setItem("userInfo",JSON.stringify(res.data))
+                sessionStorage.setItem("userInfo",JSON.stringify(res.data))
                 this.userId = res.data.id
                 this.myInfo = res.data
                 this.getUserList()

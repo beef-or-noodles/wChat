@@ -11,7 +11,7 @@ var request = axios.create({
 })
 // 请求拦截器
 request.interceptors.request.use(config=>{
-    let token = localStorage.getItem("token")
+    let token = sessionStorage.getItem("token")
     try{
         config.headers["token"] = token
     }catch (e) {
